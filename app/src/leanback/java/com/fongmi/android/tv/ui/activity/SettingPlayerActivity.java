@@ -15,7 +15,6 @@ import com.fongmi.android.tv.impl.UaListener;
 import com.fongmi.android.tv.setting.PlayerSetting;
 import com.fongmi.android.tv.setting.Setting;
 import com.fongmi.android.tv.ui.base.BaseActivity;
-import com.fongmi.android.tv.ui.dialog.MpvConfDialog;
 import com.fongmi.android.tv.ui.dialog.SpeedDialog;
 import com.fongmi.android.tv.ui.dialog.UaDialog;
 import com.fongmi.android.tv.utils.ResUtil;
@@ -58,9 +57,6 @@ public class SettingPlayerActivity extends BaseActivity implements UaListener, S
     @Override
     protected void initEvent() {
         mBinding.engine.setOnClickListener(this::setEngine);
-        mBinding.mpvConf.setOnClickListener(this::onMpvConf);
-        mBinding.mpvGpuNext.setOnClickListener(this::setMpvGpuNext);
-        mBinding.mpvVulkan.setOnClickListener(this::setMpvVulkan);
         mBinding.render.setOnClickListener(this::setRender);
         mBinding.scale.setOnClickListener(this::setScale);
         mBinding.caption.setOnClickListener(this::setCaption);
@@ -74,35 +70,20 @@ public class SettingPlayerActivity extends BaseActivity implements UaListener, S
     }
 
     private void setVisible() {
-        boolean exo = !PlayerSetting.isMpv();
         if (PlayerSetting.isBackgroundPiP()) PlayerSetting.putBackground(1);
-        mBinding.mpvConf.setVisibility(exo ? View.GONE : View.VISIBLE);
-        mBinding.mpvVulkan.setVisibility(exo ? View.GONE : View.VISIBLE);
-        mBinding.mpvGpuNext.setVisibility(exo ? View.GONE : View.VISIBLE);
-        mBinding.decode.setVisibility(exo ? View.VISIBLE : View.GONE);
-        mBinding.adblock.setVisibility(exo ? View.VISIBLE : View.GONE);
+        mBinding.mpvConf.setVisibility(View.GONE);
+        mBinding.mpvVulkan.setVisibility(View.GONE);
+        mBinding.mpvGpuNext.setVisibility(View.GONE);
+        mBinding.engine.setVisibility(View.GONE);
+        mBinding.decode.setVisibility(View.VISIBLE);
+        mBinding.adblock.setVisibility(View.VISIBLE);
         mBinding.caption.setVisibility(PlayerSetting.hasCaption() ? View.VISIBLE : View.GONE);
     }
 
     private void setEngine(View view) {
-        int index = (PlayerSetting.getEngine() + 1) % engine.length;
-        PlayerSetting.putEngine(index);
+        PlayerSetting.putEngine(PlayerSetting.ENGINE_EXO);
         setPlaybackModeText();
         setVisible();
-    }
-
-    private void onMpvConf(View view) {
-        MpvConfDialog.show(this);
-    }
-
-    private void setMpvGpuNext(View view) {
-        PlayerSetting.putMpvGpuNext(!PlayerSetting.isMpvGpuNext());
-        mBinding.mpvGpuNextText.setText(Setting.getSwitch(PlayerSetting.isMpvGpuNext()));
-    }
-
-    private void setMpvVulkan(View view) {
-        PlayerSetting.putMpvVulkan(!PlayerSetting.isMpvVulkan());
-        mBinding.mpvVulkanText.setText(Setting.getSwitch(PlayerSetting.isMpvVulkan()));
     }
 
     private void setRender(View view) {

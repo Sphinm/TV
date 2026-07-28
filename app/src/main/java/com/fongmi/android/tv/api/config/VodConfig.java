@@ -13,7 +13,11 @@ import com.fongmi.android.tv.bean.Site;
 import com.fongmi.android.tv.event.ConfigEvent;
 import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.impl.Callback;
-import com.fongmi.android.tv.utils.UrlUtil;
+import com.fongmi.android.tv.server.Server;
+import com.fongmi.android.tv.service.PlaybackService;
+import com.fongmi.android.tv.utils.ConfigCache;
+import com.fongmi.android.tv.utils.HomeCache;
+import com.fongmi.android.tv.utils.Task;
 import com.github.catvod.bean.Doh;
 import com.github.catvod.bean.Header;
 import com.github.catvod.bean.Proxy;
@@ -24,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,6 +45,7 @@ public class VodConfig extends BaseConfig {
     private List<String> ads;
     private List<String> flags;
     private List<Parse> parses;
+    private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
     public static VodConfig get() {
         return Loader.INSTANCE;
@@ -66,7 +72,13 @@ public class VodConfig extends BaseConfig {
     }
 
     public static void load(Config config, Callback callback) {
-        get().clear().config(config).load(callback);
+        VodConfig instance = get();
+        Config previous = instance.getConfig();
+        if (previous != null && !TextUtils.isEmpty(previous.getUrl()) && !TextUtils.equals(previous.getUrl(), config.getUrl())) {
+            ConfigCache.clear(previous);
+            HomeCache.clearAll();
+        }
+        instance.clear().config(config).load(callback);
     }
 
     public VodConfig init() {
@@ -111,8 +123,55 @@ public class VodConfig extends BaseConfig {
 
     @Override
     protected void load(Config config) throws Throwable {
-        String json = Decoder.getJson(UrlUtil.convert(config.getUrl()), TAG);
+        String cached = ConfigCache.get(config);
+        if (!TextUtils.isEmpty(cached)) {
+            checkJson(config, Json.parse(cached).getAsJsonObject());
+            refreshInBackground(config);
+            return;
+        }
+        loadFromNetwork(config);
+    }
+
+    private void loadFromNetwork(Config config) throws Throwable {
+        String json = Decoder.getJson(config.getUrl(), TAG);
+        ConfigCache.put(config, json);
         checkJson(config, Json.parse(json).getAsJsonObject());
+    }
+
+    private void refreshInBackground(Config config) {
+        if (!refreshing.compareAndSet(false, true)) return;
+        Task.execute(() -> {
+            boolean posted = false;
+            try {
+                String json = Decoder.getJson(config.getUrl(), TAG);
+                String cached = ConfigCache.get(config);
+                if (json.equals(cached)) return;
+                ConfigCache.put(config, json);
+                posted = true;
+                App.post(() -> {
+                    try {
+                        if (isPlaybackActive()) return;
+                        clear();
+                        config(config);
+                        checkJson(config, Json.parse(json).getAsJsonObject());
+                        postEvent();
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    } finally {
+                        refreshing.set(false);
+                    }
+                });
+            } catch (Throwable e) {
+                e.printStackTrace();
+            } finally {
+                if (!posted) refreshing.set(false);
+            }
+        });
+    }
+
+    private static boolean isPlaybackActive() {
+        PlaybackService service = Server.get().getService();
+        return service != null && service.player().isPlaying();
     }
 
     @Override
@@ -141,7 +200,6 @@ public class VodConfig extends BaseConfig {
 
     private void parseConfig(Config config, JsonObject object) {
         initList(object);
-        initLive(config, object);
         initWall(config, object);
         initSite(config, object);
         initParse(config, object);
@@ -158,13 +216,6 @@ public class VodConfig extends BaseConfig {
         setFlags(Json.safeListString(object, "flags"));
         setHosts(Json.safeListString(object, "hosts"));
         setAds(Json.safeListString(object, "ads"));
-    }
-
-    private void initLive(Config config, JsonObject object) {
-        if (Json.isEmpty(object, "lives")) return;
-        Config temp = Config.find(config, LIVE).save();
-        boolean sync = LiveConfig.get().needSync(config.getUrl());
-        if (sync) LiveConfig.get().config(temp.update()).parse(object);
     }
 
     private void initWall(Config config, JsonObject object) {
@@ -268,6 +319,7 @@ public class VodConfig extends BaseConfig {
 
     public void setHome(Site site) {
         setHome(getConfig(), site, true);
+        HomeCache.clearAll();
         RefreshEvent.home();
     }
 

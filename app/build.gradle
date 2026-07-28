@@ -3,8 +3,11 @@ plugins {
 }
 
 def localProps = new Properties()
-rootProject.file('local.properties').withInputStream {
-    localProps.load(it)
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream {
+        localProps.load(it)
+    }
 }
 
 android {
@@ -31,9 +34,6 @@ android {
         leanback {
             dimension "mode"
         }
-        mobile {
-            dimension "mode"
-        }
         arm64_v8a {
             dimension "abi"
             ndk { abiFilters "arm64-v8a" }
@@ -51,10 +51,12 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(localProps['storeFile'])
-            keyAlias localProps['keyAlias']
-            keyPassword localProps['storePassword']
-            storePassword localProps['storePassword']
+            if (localProps['storeFile']) {
+                storeFile file(localProps['storeFile'])
+                keyAlias localProps['keyAlias']
+                keyPassword localProps['storePassword']
+                storePassword localProps['storePassword']
+            }
         }
     }
 
@@ -62,7 +64,7 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            signingConfig = signingConfigs.release
+            if (localProps['storeFile']) signingConfig = signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'proguard-rules-media.pro'
         }
     }
@@ -102,7 +104,6 @@ androidComponents {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.aar"])
     implementation project(':catvod')
-    implementation project(':chaquo')
     implementation project(':quickjs')
     implementation libs.appcompat
     implementation libs.lifecycle.service
@@ -115,7 +116,6 @@ dependencies {
     implementation libs.viewpager2
     implementation libs.android.gif.drawable
     implementation libs.bundles.glide
-    implementation libs.bundles.jupnp
     implementation libs.customactivityoncrash
     implementation libs.eventbus
     implementation libs.flexbox
@@ -124,16 +124,15 @@ dependencies {
     implementation libs.material
     implementation libs.materialdesigncolors
     implementation libs.nanohttpd
-    implementation libs.newpipeextractor
     implementation libs.permissionx
     implementation libs.simple.xml
     implementation libs.textdrawable
     leanbackImplementation libs.leanback
     leanbackImplementation libs.androidautosize
-    mobileImplementation libs.biometric
-    mobileImplementation libs.zxing.android.embedded
     annotationProcessor libs.room.compiler
     annotationProcessor libs.eventbus.annotation.processor
     annotationProcessor libs.glide.compiler
     coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit
+    testImplementation libs.robolectric
 }

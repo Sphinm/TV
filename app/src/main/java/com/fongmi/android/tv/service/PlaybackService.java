@@ -240,14 +240,9 @@ public class PlaybackService extends MediaLibraryService implements MediaLibrary
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onConfigEvent(ConfigEvent event) {
-        if (session == null) return;
-        if (event.isVod()) {
-            BrowseTree.clearVod();
-            session.notifyChildrenChanged("VOD", 0, null);
-        } else if (event.isLive()) {
-            BrowseTree.clearLive();
-            session.notifyChildrenChanged("LIVE", 0, null);
-        }
+        if (session == null || !event.isVod()) return;
+        BrowseTree.clearVod();
+        session.notifyChildrenChanged("VOD", 0, null);
     }
 
     @Nullable

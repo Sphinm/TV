@@ -3,7 +3,6 @@ package com.fongmi.android.tv.ui.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -29,9 +28,7 @@ import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
-import com.bumptech.glide.request.transition.Transition;
 import com.fongmi.android.tv.App;
-import com.fongmi.android.tv.Constant;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.api.DanmakuApi;
 import com.fongmi.android.tv.api.SiteApi;
@@ -49,7 +46,6 @@ import com.fongmi.android.tv.bean.Vod;
 import com.fongmi.android.tv.databinding.ActivityVideoBinding;
 import com.fongmi.android.tv.db.AppDatabase;
 import com.fongmi.android.tv.event.RefreshEvent;
-import com.fongmi.android.tv.impl.CustomTarget;
 import com.fongmi.android.tv.model.VideoViewModel;
 import com.fongmi.android.tv.player.util.PlayerHelper;
 import com.fongmi.android.tv.service.PlaybackService;
@@ -61,6 +57,7 @@ import com.fongmi.android.tv.ui.adapter.FlagAdapter;
 import com.fongmi.android.tv.ui.adapter.PartAdapter;
 import com.fongmi.android.tv.ui.adapter.QualityAdapter;
 import com.fongmi.android.tv.ui.adapter.QuickAdapter;
+import com.fongmi.android.tv.ui.activity.video.VideoOverlayUi;
 import com.fongmi.android.tv.ui.custom.CustomKeyDownVod;
 import com.fongmi.android.tv.ui.custom.CustomMovement;
 import com.fongmi.android.tv.ui.dialog.ChapterDialog;
@@ -79,13 +76,11 @@ import com.fongmi.android.tv.playback.vod.VodPlaybackHost;
 import com.fongmi.android.tv.playback.vod.VodPlaybackMedia;
 import com.fongmi.android.tv.utils.Clock;
 import com.fongmi.android.tv.utils.FileChooser;
-import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.PartUtil;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.fongmi.android.tv.utils.Sniffer;
-import com.fongmi.android.tv.utils.Traffic;
 import com.fongmi.android.tv.utils.UrlUtil;
 import com.fongmi.android.tv.utils.Util;
 import com.github.bassaer.library.MDColor;
@@ -114,17 +109,15 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     private PartAdapter mPartAdapter;
     private VodPlaybackController mVod;
     private CustomKeyDownVod mKeyDown;
+    private VideoOverlayUi mOverlay;
     private VideoViewModel mViewModel;
     private History mHistory;
-    private boolean fullscreen;
     private boolean useParse;
     private Runnable mR1;
     private Runnable mR2;
     private Runnable mR3;
     private Runnable mR4;
     private Clock mClock;
-    private View mFocus1;
-    private View mFocus2;
 
     public static void push(FragmentActivity activity, String text) {
         Uri uri = UrlUtil.uri(text);
@@ -277,6 +270,23 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         mR3 = this::setTraffic;
         mR4 = this::showEmpty;
         setRecyclerView();
+        mOverlay = new VideoOverlayUi(mBinding, this, new VideoOverlayUi.PlayerView() {
+            @Override
+            public String getDurationTime() {
+                return player().getDurationTime();
+            }
+
+            @Override
+            public String getPositionTime(long time) {
+                return player().getPositionTime(time);
+            }
+
+            @Override
+            public boolean isScrubbing() {
+                return VideoActivity.this.isScrubbing();
+            }
+        }, mR1, mR3);
+        mOverlay.initFrameParams((RelativeLayout.LayoutParams) mFrameParams, mKeyDown, mFlagAdapter);
         setVideoView();
         setViewModel();
         checkCast();
@@ -327,7 +337,7 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         mBinding.episode.addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
             @Override
             public void onChildViewHolderSelected(@NonNull RecyclerView parent, @Nullable RecyclerView.ViewHolder child, int position, int subposition) {
-                if (child != null && mBinding.video != mFocus1) mFocus1 = child.itemView;
+                if (child != null && mBinding.video != mOverlay.getFocus1(mBinding.video)) mOverlay.setFocus1(child.itemView);
             }
         });
         mBinding.array.addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
@@ -774,30 +784,17 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private boolean shouldEnterFullscreen(Episode item) {
-        boolean enter = !isFullscreen() && item.isSelected();
+        boolean enter = !mOverlay.isFullscreen() && item.isSelected();
         if (enter) enterFullscreen();
         return enter;
     }
 
     private void enterFullscreen() {
-        mFocus1 = getCurrentFocus();
-        mBinding.video.requestFocus();
-        mBinding.video.setForeground(null);
-        mBinding.video.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-        mBinding.flag.setSelectedPosition(mFlagAdapter.getPosition());
-        mKeyDown.setFull(true);
-        setFullscreen(true);
-        mFocus2 = null;
+        mOverlay.enterFullscreen(getCurrentFocus(), mBinding.flag);
     }
 
     private void exitFullscreen() {
-        mBinding.video.setForeground(ResUtil.getDrawable(R.drawable.selector_video));
-        mBinding.video.setLayoutParams(mFrameParams);
-        getFocus1().requestFocus();
-        mKeyDown.setFull(false);
-        setFullscreen(false);
-        mFocus2 = null;
-        hideInfo();
+        mOverlay.exitFullscreen(mOverlay.getFocus1(mBinding.video));
     }
 
     private void onContent() {
@@ -814,7 +811,7 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private void onVideo() {
-        if (!isFullscreen()) enterFullscreen();
+        if (!mOverlay.isFullscreen()) enterFullscreen();
     }
 
     private void onChange() {
@@ -974,71 +971,52 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private void showProgress() {
-        mBinding.progress.getRoot().setVisibility(View.VISIBLE);
-        App.post(mR3, 0);
-        hideCenter();
-        hideError();
+        mOverlay.showProgress();
     }
 
     private void hideProgress() {
-        mBinding.progress.getRoot().setVisibility(View.GONE);
-        App.removeCallbacks(mR3);
-        Traffic.reset();
+        mOverlay.hideProgress();
     }
 
     private void showError(String text) {
-        mBinding.widget.error.setVisibility(View.VISIBLE);
-        mBinding.widget.text.setText(text);
-        hideProgress();
+        mOverlay.showError(text);
     }
 
     private void hideError() {
-        mBinding.widget.error.setVisibility(View.GONE);
-        mBinding.widget.text.setText("");
+        mOverlay.hideError();
     }
 
     private void showInfo() {
-        mBinding.widget.top.setVisibility(View.VISIBLE);
-        mBinding.widget.center.setVisibility(View.VISIBLE);
-        mBinding.widget.duration.setText(player().getDurationTime());
-        mBinding.widget.position.setText(player().getPositionTime(0));
+        mOverlay.showInfo();
     }
 
     private void hideInfo() {
-        mBinding.widget.top.setVisibility(View.GONE);
-        mBinding.widget.center.setVisibility(View.GONE);
+        mOverlay.hideInfo();
     }
 
     private void showControl(View view) {
-        mBinding.control.getRoot().setVisibility(View.VISIBLE);
-        view.requestFocus();
-        setR1Callback();
+        mOverlay.showControl(view);
     }
 
     private void hideControl() {
-        mBinding.control.getRoot().setVisibility(View.GONE);
-        App.removeCallbacks(mR1);
+        mOverlay.hideControl();
     }
 
     private void hideCenter() {
-        mBinding.widget.action.setImageResource(R.drawable.ic_widget_play);
-        hideInfo();
+        mOverlay.hideCenter();
     }
 
     private void setTraffic() {
-        Traffic.setSpeed(mBinding.progress.traffic);
-        App.post(mR3, 1000);
+        mOverlay.setTraffic();
     }
 
     private void setR1Callback() {
-        if (isScrubbing()) return;
-        App.post(mR1, Constant.INTERVAL_HIDE);
+        mOverlay.scheduleHideControl();
     }
 
     @Override
     protected void onScrubbingChanged(boolean scrubbing) {
-        if (scrubbing) App.removeCallbacks(mR1);
-        else if (isVisible(mBinding.control.getRoot())) setR1Callback();
+        mOverlay.onScrubbingChanged(scrubbing);
     }
 
     private void setR2Callback() {
@@ -1051,17 +1029,7 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private void setArtwork() {
-        ImgUtil.load(this, mHistory.getVodPic(), new CustomTarget<>() {
-            @Override
-            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                mBinding.player.setDefaultArtwork(resource);
-            }
-
-            @Override
-            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                mBinding.player.setDefaultArtwork(errorDrawable);
-            }
-        });
+        mOverlay.setArtwork(mHistory);
     }
 
     private void setPartAdapter() {
@@ -1293,11 +1261,11 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private boolean isFullscreen() {
-        return fullscreen;
+        return mOverlay.isFullscreen();
     }
 
     private void setFullscreen(boolean fullscreen) {
-        this.fullscreen = fullscreen;
+        mOverlay.setFullscreen(fullscreen);
     }
 
     public boolean isUseParse() {
@@ -1309,18 +1277,18 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
     }
 
     private View getFocus1() {
-        return mFocus1 == null || mFocus1.getVisibility() != View.VISIBLE ? mBinding.video : mFocus1;
+        return mOverlay.getFocus1(mBinding.video);
     }
 
     private View getFocus2() {
-        return mFocus2 == null || mFocus2.getVisibility() != View.VISIBLE || mFocus2 == mBinding.control.action.opening || mFocus2 == mBinding.control.action.ending ? mBinding.control.action.next : mFocus2;
+        return mOverlay.getFocus2(mBinding.control.action.next);
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (isFullscreen() && KeyUtil.isMenuKey(event)) onToggle();
         if (isVisible(mBinding.control.getRoot())) setR1Callback();
-        if (isVisible(mBinding.control.getRoot())) mFocus2 = getCurrentFocus();
+        if (isVisible(mBinding.control.getRoot())) mOverlay.setFocus2(getCurrentFocus());
         if (isFullscreen() && isGone(mBinding.control.getRoot()) && mKeyDown.hasEvent(event) && service() != null) return mKeyDown.onKeyDown(event);
         if (KeyUtil.isMediaFastForward(event)) return onSeekForward();
         if (KeyUtil.isMediaRewind(event)) return onSeekBack();
@@ -1329,11 +1297,7 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
 
     @Override
     public void onSeeking(long time) {
-        mBinding.widget.center.setVisibility(View.VISIBLE);
-        mBinding.widget.duration.setText(player().getDurationTime());
-        mBinding.widget.position.setText(player().getPositionTime(time));
-        mBinding.widget.action.setImageResource(time > 0 ? R.drawable.ic_widget_forward : R.drawable.ic_widget_rewind);
-        hideProgress();
+        mOverlay.onSeeking(time);
     }
 
     @Override

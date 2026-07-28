@@ -1,6 +1,5 @@
 package com.fongmi.android.tv.server;
 
-import com.fongmi.android.tv.api.config.LiveConfig;
 import com.fongmi.android.tv.bean.Device;
 import com.fongmi.android.tv.server.impl.Process;
 import com.fongmi.android.tv.server.process.Action;
@@ -23,21 +22,28 @@ public class Nano extends NanoHTTPD {
 
     private static final String INDEX = "index.html";
 
+    private final boolean requireAuth;
     private List<Process> process;
 
-    public Nano(int port) {
-        super(port);
+    public Nano(String hostname, int port, boolean requireAuth) {
+        super(hostname, port);
+        this.requireAuth = requireAuth;
         addProcess();
     }
 
     private void addProcess() {
         process = new ArrayList<>();
-        process.add(new Action());
-        process.add(new Cache());
-        process.add(new Local());
-        process.add(new Media());
-        process.add(new Parse());
-        process.add(new Proxy());
+        if (requireAuth) {
+            process.add(new Action());
+            process.add(new Local());
+        } else {
+            process.add(new Action());
+            process.add(new Cache());
+            process.add(new Local());
+            process.add(new Media());
+            process.add(new Parse());
+            process.add(new Proxy());
+        }
     }
 
     public static Response ok() {
@@ -59,9 +65,11 @@ public class Nano extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
         String url = session.getUri().trim();
+        if (requireAuth && !ServerAuth.isPublicPath(session, url) && !ServerAuth.isAuthorized(session)) {
+            return error(Response.Status.UNAUTHORIZED, "Unauthorized");
+        }
         Map<String, String> files = new HashMap<>();
         if (session.getMethod() == Method.POST) parse(session, files);
-        if (url.startsWith("/tvbus")) return ok(LiveConfig.getResp());
         if (url.startsWith("/device")) return ok(Device.get().toString());
         for (Process process : process) if (process.isRequest(session, url)) return process.doResponse(session, url, files);
         return getAssets(url.substring(1));

@@ -22,16 +22,16 @@ public class PlayerSetting {
     private static final float MAX_SPEED = 5.0f;
 
     public static int getEngine() {
-        return Math.clamp(Prefers.getInt("player_engine", ENGINE_EXO), ENGINE_EXO, ENGINE_MPV);
+        return ENGINE_EXO;
     }
 
     public static void putEngine(int engine) {
-        Prefers.put("player_engine", Math.clamp(engine, ENGINE_EXO, ENGINE_MPV));
-        if (!isMpv() && isTunnel()) Prefers.put("render", RENDER_SURFACE);
+        Prefers.put("player_engine", ENGINE_EXO);
+        if (isTunnel()) Prefers.put("render", RENDER_SURFACE);
     }
 
     public static boolean isMpv() {
-        return getEngine() == ENGINE_MPV;
+        return false;
     }
 
     public static boolean isMpvGpuNext() {

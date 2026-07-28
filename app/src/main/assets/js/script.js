@@ -11,6 +11,20 @@ let danmakuMode = 1;
 let danmakuSize = 25;
 let dialogClosing = false;
 
+function withToken(data) {
+    if (!authToken) return data;
+    if (data instanceof FormData) {
+        data.append('token', authToken);
+        return data;
+    }
+    if (data == null) return { token: authToken };
+    if (typeof data === 'string') return data + (data.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(authToken);
+    return { ...data, token: authToken };
+}
+
+const params = new URLSearchParams(window.location.search);
+const authToken = params.get('token') || '';
+
 function search() {
     doAction('search', { word: $('#keyword').val() });
 }
@@ -55,7 +69,7 @@ function setDanmakuSize(val, label) {
 }
 
 function doAction(action, kv) {
-    $.post('/action', { ...kv, do: action });
+    $.post('/action', withToken({ ...kv, do: action }));
 }
 
 function openDialog(id) {
@@ -129,7 +143,7 @@ function pushFile(yes) {
 
 function listFile(path, addHistory = false) {
     const loadingTimer = setTimeout(() => $('#loadingToast').show(), 200);
-    $.get('/file' + path, function (res) {
+    $.get('/file' + path, withToken({}), function (res) {
         clearTimeout(loadingTimer);
         let info;
         try {
@@ -183,7 +197,7 @@ function confirmUpload(yes) {
     $.ajax({
         url: '/upload',
         type: 'post',
-        data: formData,
+        data: withToken(formData),
         processData: false,
         contentType: false,
         complete: function () {
@@ -204,7 +218,7 @@ function confirmNewFolder(yes) {
     $('#newFolderContent').val('');
     if (yes !== 1 || name.length === 0) return;
     $('#loadingToast').show();
-    $.post('/newFolder', { path: currentRoot, name }, function () {
+    $.post('/newFolder', withToken({ path: currentRoot, name }), function () {
         $('#loadingToast').hide();
         listFile(currentRoot);
     }).fail(function () {
@@ -225,7 +239,7 @@ function confirmDelFolder(yes) {
     const { path, refreshPath } = pendingDelFolder;
     pendingDelFolder = null;
     $('#loadingToast').show();
-    $.post('/delFolder', { path }, function () {
+    $.post('/delFolder', withToken({ path }), function () {
         $('#loadingToast').hide();
         listFile(refreshPath);
     }).fail(function () {
@@ -244,7 +258,7 @@ function confirmDelFile(yes) {
     closeDialog('delFile');
     if (yes !== 1) return;
     $('#loadingToast').show();
-    $.post('/delFile', { path: currentFile }, function () {
+    $.post('/delFile', withToken({ path: currentFile }), function () {
         $('#loadingToast').hide();
         listFile(currentRoot);
     }).fail(function () {
@@ -268,7 +282,7 @@ function showPanel(id) {
     if (id === 5 && document.getElementById('file_list').innerHTML === '') listFile('');
 }
 
-const tab = parseInt(new URLSearchParams(window.location.search).get('tab')) || 1;
+const tab = parseInt(params.get('tab')) || 1;
 history.replaceState(null, '');
 showPanel(tab);
 

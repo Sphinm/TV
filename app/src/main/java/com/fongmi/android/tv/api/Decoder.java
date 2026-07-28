@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Asset;
 import com.github.catvod.utils.Json;
 import com.github.catvod.utils.Util;
 
@@ -23,7 +24,12 @@ public class Decoder {
     private static final Pattern JS_URI = Pattern.compile("\"(\\.|\\.\\.)/(.?|.+?)\\.js\\?(.?|.+?)\"");
 
     public static String getJson(String url, String tag) throws Exception {
-        try (Response res = OkHttp.newCall(url, tag).execute()) {
+        if ("assets".equals(UrlUtil.scheme(url))) {
+            String data = Asset.read(url);
+            if (data.isEmpty()) throw new Exception("Asset not found: " + url);
+            return verify(url, data);
+        }
+        try (Response res = OkHttp.newCall(UrlUtil.convert(url), tag).execute()) {
             HttpUrl httpUrl = res.request().url();
             int size = HttpUrl.parse(url).querySize();
             if (httpUrl.querySize() == size) url = httpUrl.toString();

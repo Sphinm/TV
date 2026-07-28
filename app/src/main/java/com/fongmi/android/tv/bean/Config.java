@@ -87,9 +87,15 @@ public class Config {
         AppDatabase.get().getConfigDao().delete(url, type);
     }
 
+    public static final String BUILTIN_VOD_URL = "assets://config/vod.json";
+    public static final String BUILTIN_VOD_NAME = "内置配置";
+
     public static Config vod() {
         Config item = AppDatabase.get().getConfigDao().findOne(0);
-        return item == null ? create(0) : item;
+        if (item == null || item.isEmpty()) {
+            return create(0, BUILTIN_VOD_URL, BUILTIN_VOD_NAME).update();
+        }
+        return item;
     }
 
     public static Config live() {

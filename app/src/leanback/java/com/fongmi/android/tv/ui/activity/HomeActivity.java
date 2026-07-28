@@ -25,7 +25,6 @@ import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.Product;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.Updater;
-import com.fongmi.android.tv.api.config.LiveConfig;
 import com.fongmi.android.tv.api.config.VodConfig;
 import com.fongmi.android.tv.api.config.WallConfig;
 import com.fongmi.android.tv.bean.Cache;
@@ -46,7 +45,6 @@ import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.player.extractor.Source;
 import com.fongmi.android.tv.server.Server;
-import com.fongmi.android.tv.service.DLNARendererService;
 import com.fongmi.android.tv.service.PlaybackService;
 import com.fongmi.android.tv.ui.adapter.BaseDiffCallback;
 import com.fongmi.android.tv.ui.base.BaseActivity;
@@ -60,13 +58,12 @@ import com.fongmi.android.tv.ui.presenter.HistoryPresenter;
 import com.fongmi.android.tv.ui.presenter.ProgressPresenter;
 import com.fongmi.android.tv.ui.presenter.VodPresenter;
 import com.fongmi.android.tv.utils.Clock;
-import com.fongmi.android.tv.utils.FileChooser;
+import com.fongmi.android.tv.utils.HomeCache;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.PermissionUtil;
 import com.fongmi.android.tv.utils.ResUtil;
-import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.net.OkHttp;
 import com.google.common.collect.Lists;
 
@@ -120,14 +117,13 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         mClock = Clock.create(mBinding.clock);
         mBinding.progressLayout.showProgress();
         PermissionUtil.requestNotify(this);
-        DLNARendererService.start(this);
-        Updater.create().start(this);
         setRecyclerView();
         setViewModel();
         setAdapter();
         initConfig();
         setTitle();
         setLogo();
+        App.post(() -> Updater.create().start(this), 3000);
     }
 
     @Override
@@ -154,11 +150,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     }
 
     private void checkType(Intent intent) {
-        if ("text/plain".equals(intent.getType()) || UrlUtil.path(intent.getData()).endsWith(".m3u")) {
-            loadLive("file:/" + FileChooser.getPathFromUri(intent.getData()));
-        } else {
-            VideoActivity.push(this, intent.getData().toString());
-        }
+        VideoActivity.push(this, intent.getData().toString());
     }
 
     @SuppressLint("RestrictedApi")
@@ -177,9 +169,12 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     private void setViewModel() {
         mViewModel = new ViewModelProvider(this).get(SiteViewModel.class);
         mViewModel.getResult().observe(this, result -> {
+            int index = getRecommendIndex();
+            if (mAdapter.size() > index + 1) mAdapter.removeItems(index + 1, mAdapter.size() - index - 1);
             mAdapter.remove("progress");
             addVideo(mResult = result);
             Cache.clear().put(result);
+            HomeCache.put(result);
         });
     }
 
@@ -198,7 +193,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     private void initConfig() {
         VodConfig.get().init().load(getCallback());
-        LiveConfig.get().init().load();
         WallConfig.get().init();
     }
 
@@ -223,15 +217,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         setFocus();
     }
 
-    private void loadLive(String url) {
-        LiveConfig.load(Config.find(url, 1), new Callback() {
-            @Override
-            public void success() {
-                LiveActivity.start(getActivity());
-            }
-        });
-    }
-
     private void setFocus() {
         mBinding.title.setSelected(true);
         App.post(() -> mBinding.title.setFocusable(true), 500);
@@ -244,6 +229,13 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         boolean gone = mAdapter.indexOf("progress") == -1;
         boolean hasItem = gone && mAdapter.size() > index;
         if (hasItem) mAdapter.removeItems(index, mAdapter.size() - index);
+        Result cached = HomeCache.get();
+        if (cached != null) {
+            mResult = cached;
+            addVideo(cached);
+            mViewModel.homeContent();
+            return;
+        }
         if (gone) mAdapter.add("progress");
         mViewModel.homeContent();
     }
@@ -268,7 +260,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     private void setFunc() {
         List<Func> items = new ArrayList<>();
         items.add(Func.create(R.string.home_vod));
-        if (LiveConfig.hasUrl()) items.add(Func.create(R.string.home_live));
         items.add(Func.create(R.string.home_search));
         items.add(Func.create(R.string.home_keep));
         items.add(Func.create(R.string.home_push));
@@ -325,9 +316,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
                 break;
             case COMMON:
                 setFunc();
-                break;
-            case BOOT:
-                LiveActivity.start(this);
                 break;
         }
     }
@@ -387,7 +375,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     @Override
     public void onItemClick(Func item) {
         if (item.getResId() == R.string.home_vod) VodActivity.start(this, mResult);
-        else if (item.getResId() == R.string.home_live) LiveActivity.start(this);
         else if (item.getResId() == R.string.home_keep) KeepActivity.start(this);
         else if (item.getResId() == R.string.home_push) PushActivity.start(this);
         else if (item.getResId() == R.string.home_search) SearchActivity.start(this);
@@ -478,9 +465,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     @Override
     protected void onDestroy() {
-        DLNARendererService.stop(this);
-        LiveConfig.get().clear();
-        VodConfig.get().clear();
         AppDatabase.backup();
         OkHttp.get().clear();
         Source.get().exit();

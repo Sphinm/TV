@@ -1,6 +1,6 @@
 # 開發者文件
 
-基於 [CatVod](https://github.com/CatVodTVOfficial/CatVodTVJarLoader) 的開源 Android 影音應用程式，同時支援 **Android TV 大螢幕**與**手機**兩種使用情境，並且透過外部配置靈活擴展內容。
+基於 [CatVod](https://github.com/CatVodTVOfficial/CatVodTVJarLoader) 的開源 Android TV 影音應用程式（Leanback 專版），透過外部 JSON 配置靈活擴展片源。
 
 [討論群組](https://t.me/fongmi_official) | [發布頻道](https://t.me/fongmi_release)
 
@@ -13,11 +13,8 @@
 - [專案架構](#專案架構)
 - [播放器](#播放器)
 - [點播功能](#點播功能)
-- [直播功能](#直播功能)
 - [爬蟲引擎](#爬蟲引擎)
 - [網路功能](#網路功能)
-- [DLNA 投放](#dlna-投放)
-- [Android Auto](#android-auto)
 - [遠端控制](#遠端控制)
 - [配置說明](#配置說明)
 - [延伸閱讀](#延伸閱讀)
@@ -26,33 +23,39 @@
 
 ## 專案架構
 
-| 項目      | 值                             |
-|---------|-------------------------------|
-| package | `com.fongmi.android.tv`       |
-| minSdk  | 24（Android 7.0 Nougat）        |
-| abi     | `arm64-v8a`、`armeabi-v7a`     |
-| flavor  | `leanback`（電視版）、`mobile`（手機版） |
+| 項目      | 值                                      |
+|---------|----------------------------------------|
+| package | `com.fongmi.android.tv`                |
+| minSdk  | 24（Android 7.0 Nougat）                 |
+| abi     | `arm64-v8a`、`armeabi-v7a`（依電視架構二選一） |
+| flavor  | `leanback`（Android TV）                 |
 
 ```
 TV/
-├── app/            主應用程式（含兩套 UI Flavor）
+├── app/            主應用程式（Leanback UI）
 ├── catvod/         爬蟲抽象層（Spider 介面、OkHttp 網路棧）
-├── quickjs/        QuickJS JavaScript 引擎
-├── chaquo/         Chaquopy Python 引擎
+└── quickjs/        QuickJS JavaScript 引擎
 ```
 
-`app/src/main/` 為兩個版本共用的業務邏輯，`app/src/leanback/` 與 `app/src/mobile/` 各自實作對應 UI。
+**本 fork 精簡項：**
+
+- 僅保留 TV 版（`leanback`），提供兩種 ABI 變體：
+  - `arm64_v8a`：較新電視、盒子（64 位 ARM）
+  - `armeabi_v7a`：較舊電視（32 位 ARM，例如部分小米電視）
+- 內建精簡 Vod 配置（`assets/config/vod.json` + `spider.jar`），首次安裝即可使用
+- 支援掃碼 / URL 換源
+- 配置與首頁推薦磁碟快取，命中後先展示、後台刷新
+- 已移除：手機版、直播、DLNA、Android Auto、Python、Thunder/Jianpian 協議、MPV 播放器
 
 ---
 
 ## 播放器
 
-- **核心**：ExoPlayer（Media3）+ FFmpeg 軟解，硬解 / 軟解自動降級切換
+- **核心**：ExoPlayer（Media3），硬解優先
 - **渲染**：SurfaceView / TextureView
 - **DRM**：Widevine、PlayReady、ClearKey，支援 `#KODIPROP` 宣告
-- **彈幕**：DanmakuFlameMaster，與播放時間軸精確同步，支援遠端推送
 - **字幕**：SRT / SSA / ASS 外掛字幕、系統 CaptioningManager、遠端即時注入
-- **其他**：倍速、多縮放比例、畫中畫（PiP）、背景音訊、片頭 / 片尾自動跳過
+- **其他**：倍速、多縮放比例、背景音訊、片頭 / 片尾自動跳過
 
 ---
 
@@ -62,27 +65,16 @@ TV/
 - 多站點**並行搜尋**，關鍵字自動繁轉簡提升相容性
 - 播放失敗自動換源：解析器 → 線路 → 搜尋其他站 → 下一站點
 - 觀看記錄（保留 60 天）、收藏、無痕模式
-- 電視版使用遙控器操作；手機版支援手勢（亮度 / 音量 / 進度）、上下滑切集、螢幕旋轉與鎖定
-
----
-
-## 直播功能
-
-- 支援 M3U、TXT（`#genre#` 分組）、JSON 三種直播源格式
-- **EPG**：XMLTV 格式（支援 `.gz`），每 6 小時自動刷新
-- **追看 / 時移**：`append`、`pltv` 等多種類型
-- 頻道收藏、隱藏分組密碼保護
-- 特殊引擎：TVBus、ForceTech
+- 遙控器操作首頁、搜尋、播放全流程
 
 ---
 
 ## 爬蟲引擎
 
-支援三種語言撰寫爬蟲：
+支援兩種語言撰寫爬蟲：
 
 - Java JAR（DexClassLoader）
 - JavaScript（QuickJS）
-- Python（Chaquopy）
 
 透過 `api` 欄位指定爬蟲，`ext` 欄位傳入初始化參數。完整 API 規格見 [SPIDER.md](docs/SPIDER.md)。
 
@@ -99,41 +91,65 @@ TV/
 
 ---
 
-## DLNA 投放
-
-- **DMC（投放端）**：手機版，掃描區域網路 DLNA 設備並投放媒體
-- **DMR（被投放端）**：電視版，作為 DLNA Renderer 接收其他設備投放
-
-使用 JUPnP 3.0.4（UPnP），支援 play / pause / stop / seek / next / repeat 控制，可傳遞自訂 HTTP 標頭（User-Agent、Referer 等）至目標串流。
-
----
-
-## Android Auto
-
-電視版支援 Android Auto，PlaybackService 實作 MediaLibraryService，可在車機上瀏覽播放記錄與直播頻道：
-
-- **點播**：歷史記錄條目可直接續播，恢復上次進度
-- **直播**：依分組瀏覽頻道，可直接選台
-- **播放控制**：支援車機端 play / pause / prev / next / stop
-- **懶加載**：App 退出後 Auto 仍保持連線，配置自動重新載入
-
----
-
 ## 遠端控制
 
-應用啟動後綁定本地 HTTP 伺服器（NanoHTTPD），埠號從 **9978** 起自動偵測至 **9998**，可用於播放控制、推送字幕 / 彈幕、多裝置同步等。完整端點說明見 [LOCAL.md](docs/LOCAL.md)。
+應用啟動後綁定本地 HTTP 伺服器（NanoHTTPD）：
+
+- **本機服務**（`127.0.0.1`）：爬蟲代理、解析、資源讀取等內部能力
+- **遠端服務**（區域網 IP）：手機掃碼推送，需 6 位配對碼（URL 自帶 `token` 參數）
+
+埠號從 **9978** 起自動偵測。完整端點說明見 [LOCAL.md](docs/LOCAL.md)。
 
 ---
 
 ## 配置說明
 
-Vod 配置為應用主要入口，透過 URL 或本地路徑載入，頂層欄位定義：
+Vod 配置為應用主要入口：
 
-- 點播站點（`sites`）、解析規則（`parses`）
-- 直播來源（`lives`）
-- 網路設定（`doh`、`proxy`、`hosts`、`ads`）
+- **內建**：`assets://config/vod.json`（首次安裝自動使用）
+- **換源**：設定頁掃碼或輸入外部 JSON URL
 
-Live 配置可內嵌或獨立存放。完整欄位說明見 [CONFIG.md](docs/CONFIG.md)。
+頂層欄位定義點播站點（`sites`）、解析規則（`parses`）、網路設定（`doh`、`proxy`、`hosts`、`ads`）等。完整欄位說明見 [CONFIG.md](docs/CONFIG.md)。
+
+**構建命令：**
+
+首次構建需先編譯 Media3 AAR（約 15 分鐘，僅需執行一次）：
+
+```bash
+scripts/build_media_aars.sh
+```
+
+依電視架構選擇對應變體：
+
+```bash
+# 64 位電視 / 盒子
+./gradlew assembleLeanbackArm64_v8aRelease
+
+# 32 位電視（如部分小米電視）
+./gradlew assembleLeanbackArmeabi_v7aRelease
+```
+
+產物位於 `Release/apk/`：
+
+| APK | 適用設備 |
+|-----|---------|
+| `leanback-arm64_v8a.apk` | `arm64-v8a` |
+| `leanback-armeabi_v7a.apk` | `armeabi-v7a` |
+
+本地調試（自帶 debug 簽名，無需配置 keystore）：
+
+```bash
+./gradlew assembleLeanbackArmeabi_v7aDebug   # 或 Arm64_v8aDebug
+adb install -r app/build/outputs/apk/leanbackArmeabi_v7a/debug/app-leanback-armeabi_v7a-debug.apk
+```
+
+不確定電視架構時，可在已連接 adb 的設備上執行：
+
+```bash
+adb shell getprop ro.product.cpu.abi
+```
+
+Release 簽名需在 `local.properties` 配置 `storeFile`、`keyAlias`、`storePassword`；未配置時 release 包無法直接安裝。
 
 ---
 
@@ -141,7 +157,6 @@ Live 配置可內嵌或獨立存放。完整欄位說明見 [CONFIG.md](docs/CON
 
 | 文件                          | 說明                   |
 |-----------------------------|----------------------|
-| [CONFIG.md](docs/CONFIG.md) | Vod / Live 完整配置欄位說明  |
+| [CONFIG.md](docs/CONFIG.md) | Vod 完整配置欄位說明       |
 | [SPIDER.md](docs/SPIDER.md) | Spider 所有方法規格與回傳格式   |
 | [LOCAL.md](docs/LOCAL.md)   | 本地 HTTP API 所有端點完整說明 |
-| [LIVE.md](docs/LIVE.md)     | 直播來源格式完整說明           |

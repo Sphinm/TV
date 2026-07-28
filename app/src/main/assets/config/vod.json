@@ -1,0 +1,27 @@
+{
+  "spider": "assets://config/spider.jar;md5;cc0ca03ed255ca4c1c01f7c682adf883",
+  "logo": "https://pic7.fukit.cn/autoupload/gE6Y0Af2tjXBCNig6CtNDI12_FRYNb81z6UPhMWD8iI/20251224/dJkT/1080X1080/logo.jpg/webp",
+  "sites": [
+    {"key": "豆瓣", "name": "豆瓣 • 首页", "type": 3, "api": "csp_Douban", "searchable": 0},
+    {"key": "本地", "name": "本地 • 视频", "type": 3, "api": "csp_LocalFile"},
+    {"key": "天堂", "name": "天堂 • APP", "type": 3, "api": "csp_AppDrama", "searchable": 1, "quickSearch": 1, "filterable": 1, "ext": {"appName": "电影天堂", "publicKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCduNEnfxGaLuQRk5ABzXHhPV43zi00sCHjLo8BYc+Wi6xXm2b4v0i28Sq4WlNCKhseft9fz8kO/qLr6/022o1RcuOU7e4GFL3U9WnNODwRBYSYWd+K8nqpI/tAUDmZEBGRWqjrc7x6aMl3A+xpnWkLbPCLsuhbuuUE3tv09oeOpwIDAQAB", "dataKey": "D2KREWRIBVNAUJJYEDL4VFHOY2Q0PQ==", "dataIv": "OC1A06E197EF10CF3F6058CA7A803B5E", "pkg": "com.dytiantang.one", "host": "", "site": "https://dyttandroid04-1372779881.cos.ap-shanghai.myqcloud.com/app_dyttandroid.txt", "version": "3.0.0.7", "decrypt": "0"}},
+    {"key": "橘汁", "name": "橘汁 • APP", "type": 3, "api": "csp_AppDrama", "searchable": 1, "quickSearch": 1, "filterable": 1, "ext": {"appName": "橘汁", "publicKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCr8SzZhjYy+rsya1K09t8d2K50pWFoBkgUqMpKOiW+3IEVKd4eTdvg9RSOjQ82kypL6R9BnsmrS1V8s4PVDwjQbUtYhTPPC9Hz16qY7rpD6m0d2vr09/UpWQ5uOy9PR0QTrsioveZ+DIe9jc3C+zBCu/kZSY/R8stwJoiitki3gwIDAQAB", "dataKey": "DGVQRUX5R1LWWDLHTGJSUKG1DJRVPQ==", "dataIv": "OC1A06E197EF10CF3F6058CA7A803B5E", "pkg": "com.lxf.snzlcgtzxyx", "host": "", "site": "https://123-1349250429.cos.ap-shanghai.myqcloud.com/app.txt", "version": "3.0.2.1", "decrypt": "1"}},
+    {"key": "苹果", "name": "苹果 • APP", "type": 3, "api": "csp_AppDrama", "searchable": 1, "quickSearch": 1, "filterable": 1, "ext": {"appName": "小苹果", "publicKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCduNEnfxGaLuQRk5ABzXHhPV43zi00sCHjLo8BYc+Wi6xXm2b4v0i28Sq4WlNCKhseft9fz8kO/qLr6/022o1RcuOU7e4GFL3U9WnNODwRBYSYWd+K8nqpI/tAUDmZEBGRWqjrc7x6aMl3A+xpnWkLbPCLsuhbuuUE3tv09oeOpwIDAQAB", "dataKey": "S0VNDTJHOFHHCNMRAW5IV2TOS2PBPQ==", "dataIv": "OC1A06E197EF10CF3F6058CA7A803B5E", "pkg": "com.juechufsh.android.xpg1", "host": "", "site": "https://xpgandroid03-1372779881.cos.ap-beijing.myqcloud.com/app_xpg_android.txt", "version": "1.0.0.3", "decrypt": "0"}},
+    {"key": "金牌", "name": "金牌 • APP", "type": 3, "api": "csp_AppQi", "searchable": 1, "changeable": 1, "ext": {"url": "https://qj4.catbb.xyz", "dataKey": "eecbio48dsq13kkk", "dataIv": "eecbio48dsq13kkk", "search": "searchList4", "init": "initV122", "ua": "okhttp/3.10.0"}},
+    {"key": "瓜子影视", "name": "瓜子 • 影视", "type": 3, "api": "csp_Gz360", "searchable": 1, "quickSearch": 1},
+    {"key": "厂长", "name": "厂长 • 影视", "type": 3, "api": "csp_Czsapp", "searchable": 1, "quickSearch": 1},
+    {"key": "玩偶", "name": "玩偶 • 4K", "type": 3, "api": "csp_Wogg", "searchable": 1, "quickSearch": 1},
+    {"key": "阿里", "name": "阿里 • 云盘", "type": 3, "api": "csp_PanAli", "searchable": 1},
+    {"key": "夸克", "name": "夸克 • 网盘", "type": 3, "api": "csp_PanQuark", "searchable": 1},
+    {"key": "聚合", "name": "聚合 • 搜索", "type": 3, "api": "csp_JuheSo", "searchable": 1},
+    {"key": "手机", "name": "手机 • 推送", "type": 3, "api": "csp_Push"}
+  ],
+  "parses": [
+    {"name": "虾米", "type": 0, "url": "https://jx.xmflv.com/?url="},
+    {"name": "云解", "type": 0, "url": "https://yparse.ik9.cc/index.php?url="}
+  ],
+  "doh": [
+    {"name": "腾讯", "url": "https://doh.pub/dns-query"},
+    {"name": "阿里", "url": "https://dns.alidns.com/dns-query"}
+  ]
+}

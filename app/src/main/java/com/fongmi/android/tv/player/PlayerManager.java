@@ -221,7 +221,7 @@ public class PlayerManager implements ParseCallback {
     }
 
     public int getEngine() {
-        return engine.getType() == PlayerEngine.Type.MPV ? PlayerSetting.ENGINE_MPV : PlayerSetting.ENGINE_EXO;
+        return PlayerSetting.ENGINE_EXO;
     }
 
     public void setEngine(int targetEngine) {

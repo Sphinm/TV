@@ -16,6 +16,7 @@ import com.fongmi.android.tv.event.ServerEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.server.Nano;
 import com.fongmi.android.tv.server.Server;
+import com.fongmi.android.tv.server.ServerAuth;
 import com.fongmi.android.tv.server.impl.Process;
 import com.fongmi.android.tv.service.PlaybackService;
 import com.fongmi.android.tv.utils.FileUtil;
@@ -93,7 +94,6 @@ public class Action implements Process {
         String json = params.get("json");
         if (TextUtils.isEmpty(type)) return;
         switch (type) {
-            case "live" -> RefreshEvent.live();
             case "detail" -> RefreshEvent.detail();
             case "player" -> RefreshEvent.player();
             case "category" -> RefreshEvent.category();
@@ -149,7 +149,8 @@ public class Action implements Process {
 
     private void post(Device device, String type, FormBody.Builder body) {
         try {
-            OkHttp.newCall(OkHttp.client(Constant.TIMEOUT_SYNC), device.getIp().concat("/action?do=sync&mode=0&type=" + type), body.build()).execute();
+            String url = ServerAuth.appendToken(device.getIp().concat("/action?do=sync&mode=0&type=" + type));
+            OkHttp.newCall(OkHttp.client(Constant.TIMEOUT_SYNC), url, body.build()).execute();
         } catch (Exception e) {
             App.post(() -> Notify.show(e.getMessage()));
         }

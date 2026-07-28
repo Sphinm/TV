@@ -18,8 +18,6 @@ import com.fongmi.android.tv.utils.UrlUtil;
 import com.fongmi.android.tv.utils.Util;
 import com.google.gson.annotations.SerializedName;
 
-import org.jupnp.model.meta.RemoteDevice;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -60,16 +58,8 @@ public class Device implements Diffable<Device>, Comparable<Device> {
         device.setWlan(Util.getMac("wlan0"));
         device.setUuid(Util.getAndroidId());
         device.setName(Util.getDeviceName());
-        device.setIp(Server.get().getAddress());
+        device.setIp(Server.get().getPublicBase());
         device.setType(Product.getDeviceType());
-        return device;
-    }
-
-    public static Device get(RemoteDevice item) {
-        Device device = new Device();
-        device.setUuid(item.getIdentity().getUdn().getIdentifierString());
-        device.setName(item.getDetails().getFriendlyName());
-        device.setType(2);
         return device;
     }
 
@@ -149,16 +139,12 @@ public class Device implements Diffable<Device>, Comparable<Device> {
         return getType() == 1;
     }
 
-    public boolean isDLNA() {
-        return getType() == 2;
-    }
-
     public boolean isApp() {
         return isLeanback() || isMobile();
     }
 
     public String getHost() {
-        return isDLNA() ? getUuid() : UrlUtil.host(getIp());
+        return UrlUtil.host(getIp());
     }
 
     public Device save() {

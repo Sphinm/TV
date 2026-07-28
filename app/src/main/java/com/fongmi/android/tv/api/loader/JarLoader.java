@@ -4,10 +4,10 @@ import android.content.Context;
 
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.utils.Download;
-import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderNull;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Asset;
 import com.github.catvod.utils.Path;
 import com.github.catvod.utils.Util;
 
@@ -83,7 +83,6 @@ public class JarLoader {
 
     public void parseJar(String key, String jar) {
         if (loaders.containsKey(key)) return;
-        if (jar.startsWith("assets")) jar = UrlUtil.convert(jar);
         Object lock = locks.computeIfAbsent(key, k -> new Object());
         synchronized (lock) {
             if (loaders.containsKey(key)) return;
@@ -91,7 +90,13 @@ public class JarLoader {
             String md5 = texts.length > 1 ? texts[1].trim() : "";
             if (md5.startsWith("http")) md5 = OkHttp.string(md5).trim();
             jar = texts[0];
-            if (!md5.isEmpty() && Util.equals(jar, md5)) {
+            if (jar.startsWith("assets")) {
+                File file = Path.jar(jar);
+                if (!Path.exists(file) || (!md5.isEmpty() && !Util.equals(jar, md5))) {
+                    Path.copy(Asset.open(jar), file);
+                }
+                load(key, file);
+            } else if (!md5.isEmpty() && Util.equals(jar, md5)) {
                 load(key, Path.jar(jar));
             } else if (jar.startsWith("http")) {
                 load(key, Download.create(jar, Path.jar(jar)).get());

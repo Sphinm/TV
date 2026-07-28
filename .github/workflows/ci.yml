@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Media3 sources
+        run: |
+          mkdir -p third_party
+          curl -fL "https://github.com/FongMi/media/archive/refs/heads/release-1.10.1-fongmi.tar.gz" -o third_party/media.tar.gz
+          tar -xzf third_party/media.tar.gz -C third_party
+          mv third_party/media-release-1.10.1-fongmi third_party/media
+          rm third_party/media.tar.gz
+
+      - name: Build Media3 AARs
+        run: chmod +x scripts/build_media_aars.sh third_party/media/gradlew && scripts/build_media_aars.sh
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: tools platform-tools platforms;android-37.0 build-tools;37.0.0
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run unit tests
+        run: ./gradlew :app:testLeanbackArm64_v8aDebugUnitTest --stacktrace
+
+      - name: Assemble release APKs
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        run: ./gradlew assembleLeanbackArm64_v8aRelease assembleLeanbackArmeabi_v7aRelease --stacktrace
+
+      - name: Collect APKs
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p Release/apk
+          TAG="${GITHUB_REF_NAME}"
+          OUTPUTS=()
+          for ABI in arm64_v8a armeabi_v7a; do
+            APK=$(find app/build/outputs/apk -name "leanback-${ABI}.apk" | head -1)
+            if [ -z "$APK" ]; then
+              echo "APK not found for ${ABI}. Contents:"
+              find app/build/outputs/apk -name '*.apk' -ls || true
+              exit 1
+            fi
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              OUTPUT="Release/apk/TV-${TAG}-${ABI}.apk"
+            else
+              OUTPUT="Release/apk/leanback-${ABI}.apk"
+            fi
+            cp "$APK" "$OUTPUT"
+            OUTPUTS+=("$OUTPUT")
+            ls -lh "$OUTPUT"
+          done
+          printf '%s\n' "${OUTPUTS[@]}" > Release/apk/outputs.txt
+
+      - name: Upload APK artifacts
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.ref_type == 'tag' && format('TV-{0}', github.ref_name) || 'leanback-tv' }}
+          path: Release/apk/*.apk
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Release/apk/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

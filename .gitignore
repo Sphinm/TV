@@ -7,7 +7,7 @@
 keystore/
 *.properties
 lib-*.aar
-/Release
+# /Release
 /docs
 /third_party/
 .DS_Store

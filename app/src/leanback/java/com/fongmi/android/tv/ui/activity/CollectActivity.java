@@ -41,6 +41,7 @@ public class CollectActivity extends BaseActivity {
     private CollectAdapter mAdapter;
     private SiteViewModel mViewModel;
     private List<Site> mSites;
+    private final List<Collect> mCollects = new ArrayList<>();
     private View mOldView;
 
     public static void start(Activity activity, String keyword) {
@@ -49,8 +50,9 @@ public class CollectActivity extends BaseActivity {
         activity.startActivity(intent);
     }
 
-    private CollectFragment getFragment() {
-        return (CollectFragment) mBinding.pager.getAdapter().instantiateItem(mBinding.pager, 0);
+    private CollectFragment getAllFragment() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("android:switcher:" + mBinding.pager.getId() + ":0");
+        return fragment instanceof CollectFragment ? (CollectFragment) fragment : null;
     }
 
     private String getKeyword() {
@@ -65,8 +67,9 @@ public class CollectActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        getIntent().putExtras(intent);
-        mAdapter.clear();
+        setIntent(intent);
+        mViewModel.stopSearch();
+        mCollects.clear();
         setPager();
         search();
     }
@@ -108,10 +111,19 @@ public class CollectActivity extends BaseActivity {
         mViewModel = new ViewModelProvider(this).get(SiteViewModel.class);
         mViewModel.getSearch().observe(this, result -> {
             if (result.getList().isEmpty()) return;
-            getFragment().addVideo(result.getList());
-            mAdapter.add(Collect.create(result.getList()));
-            mBinding.pager.getAdapter().notifyDataSetChanged();
+            CollectFragment fragment = getAllFragment();
+            if (fragment != null) fragment.addVideo(result.getList());
+            mCollects.add(Collect.create(result.getList()));
+            publishCollects();
         });
+    }
+
+    private void publishCollects() {
+        mAdapter.setItems(new ArrayList<>(mCollects), this::notifyPager);
+    }
+
+    private void notifyPager() {
+        if (mBinding.pager.getAdapter() != null) mBinding.pager.getAdapter().notifyDataSetChanged();
     }
 
     private void saveKeyword() {
@@ -132,8 +144,9 @@ public class CollectActivity extends BaseActivity {
 
     private void search() {
         if (mSites.isEmpty()) return;
-        mAdapter.add(Collect.all());
-        mBinding.pager.getAdapter().notifyDataSetChanged();
+        mCollects.clear();
+        mCollects.add(Collect.all());
+        publishCollects();
         mBinding.result.setText(getString(R.string.collect_result, getKeyword()));
         mViewModel.searchContent(mSites, getKeyword(), false);
     }

@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
@@ -24,20 +25,20 @@ import com.bumptech.glide.request.target.Target;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.api.config.VodConfig;
-import com.fongmi.android.tv.impl.CustomTarget;
 import com.github.catvod.utils.Json;
 import com.google.common.net.HttpHeaders;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.fongmi.android.tv.impl.CustomTarget;
+import android.util.LruCache;
 
 import jahirfiquitiva.libs.textdrawable.TextDrawable;
 
+import java.util.Map;
+
 public class ImgUtil {
 
-    private static final Set<String> failed = Collections.synchronizedSet(new HashSet<>());
+    private static final int FAILED_URL_MAX = 256;
+    private static final LruCache<String, Boolean> failed = new LruCache<>(FAILED_URL_MAX);
 
     public static void logo(ImageView view) {
         try {
@@ -70,11 +71,13 @@ public class ImgUtil {
     public static void load(String text, String url, ImageView view, boolean vod) {
         view.setScaleType(vod ? CENTER_CROP : FIT_CENTER);
         if (!vod) view.setVisibility(TextUtils.isEmpty(url) ? View.GONE : View.VISIBLE);
-        if (TextUtils.isEmpty(url) || failed.contains(url)) view.setImageDrawable(getTextDrawable(text, vod));
+        if (TextUtils.isEmpty(url) || failed.get(url) != null) view.setImageDrawable(getTextDrawable(text, vod));
         else try {
-            RequestBuilder<Drawable> builder = Glide.with(view).load(getUrl(url)).listener(getListener(text, url, view, vod));
-            if (vod) builder.centerCrop().into(view);
-            else builder.fitCenter().into(view);
+            RequestBuilder<Drawable> builder = Glide.with(view).load(getUrl(url)).diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).listener(getListener(text, url, view, vod));
+            if (vod) {
+                int[] size = ResUtil.getVodPosterSize();
+                builder.override(size[0], size[1]).centerCrop().into(view);
+            } else builder.fitCenter().into(view);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -110,7 +113,7 @@ public class ImgUtil {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                 view.setImageDrawable(getTextDrawable(text, vod));
-                failed.add(url);
+                failed.put(url, Boolean.TRUE);
                 return true;
             }
 

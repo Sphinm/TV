@@ -7,12 +7,14 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.fongmi.android.tv.db.AppDatabase;
+import com.fongmi.android.tv.impl.Diffable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(indices = @Index(value = {"key", "type"}, unique = true))
-public class Track {
+public class Track implements Diffable<Track> {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -99,5 +101,15 @@ public class Track {
         if (TextUtils.isEmpty(getKey())) return this;
         AppDatabase.get().getTrackDao().insert(this);
         return this;
+    }
+
+    @Override
+    public boolean isSameItem(Track other) {
+        return type == other.type && Objects.equals(name, other.name) && Objects.equals(format, other.format);
+    }
+
+    @Override
+    public boolean isSameContent(Track other) {
+        return isSameItem(other) && selected == other.selected;
     }
 }

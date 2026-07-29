@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaChapter;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.databinding.AdapterChapterBinding;
@@ -14,15 +16,26 @@ import com.fongmi.android.tv.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ViewHolder> {
 
     private final OnClickListener listener;
-    private final List<MediaChapter> mItems;
+    private final AsyncListDiffer<MediaChapter> differ;
 
     public ChapterAdapter(OnClickListener listener) {
         this.listener = listener;
-        this.mItems = new ArrayList<>();
+        this.differ = new AsyncListDiffer<>(this, new DiffUtil.ItemCallback<>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull MediaChapter oldItem, @NonNull MediaChapter newItem) {
+                return oldItem.timeUs == newItem.timeUs && Objects.equals(oldItem.label, newItem.label);
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull MediaChapter oldItem, @NonNull MediaChapter newItem) {
+                return oldItem.selected == newItem.selected && oldItem.timeUs == newItem.timeUs && Objects.equals(oldItem.label, newItem.label);
+            }
+        });
     }
 
     public interface OnClickListener {
@@ -31,20 +44,18 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ViewHold
     }
 
     public ChapterAdapter addAll(List<MediaChapter> items) {
-        mItems.clear();
-        mItems.addAll(items);
-        notifyDataSetChanged();
+        differ.submitList(new ArrayList<>(items));
         return this;
     }
 
     public int getSelected() {
-        for (int i = 0; i < mItems.size(); i++) if (mItems.get(i).selected) return i;
+        for (int i = 0; i < differ.getCurrentList().size(); i++) if (differ.getCurrentList().get(i).selected) return i;
         return 0;
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return differ.getCurrentList().size();
     }
 
     @NonNull
@@ -55,7 +66,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MediaChapter item = mItems.get(position);
+        MediaChapter item = differ.getCurrentList().get(position);
         holder.binding.text.setSelected(item.selected);
         holder.binding.text.setText(getText(item));
     }
@@ -77,7 +88,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ViewHold
 
         @Override
         public void onClick(View view) {
-            listener.onItemClick(mItems.get(getLayoutPosition()));
+            listener.onItemClick(differ.getCurrentList().get(getLayoutPosition()));
         }
     }
 }

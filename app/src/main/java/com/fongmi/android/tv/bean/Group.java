@@ -7,6 +7,7 @@ import androidx.annotation.StringRes;
 
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
@@ -16,8 +17,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class Group {
+public class Group implements Diffable<Group> {
 
     @SerializedName("channel")
     private List<Channel> channel;
@@ -167,5 +169,15 @@ public class Group {
         if (this == obj) return true;
         if (!(obj instanceof Group it)) return false;
         return getName().equals(it.getName()) && getChannel().size() == it.getChannel().size();
+    }
+
+    @Override
+    public boolean isSameItem(Group other) {
+        return Objects.equals(getName(), other.getName());
+    }
+
+    @Override
+    public boolean isSameContent(Group other) {
+        return equals(other) && getPosition() == other.getPosition();
     }
 }

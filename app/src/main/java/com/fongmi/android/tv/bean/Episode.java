@@ -145,7 +145,7 @@ public class Episode implements Parcelable, Diffable<Episode> {
 
     @Override
     public boolean isSameContent(Episode other) {
-        return getUrl().equals(other.getUrl()) && getDesc().equals(other.getDesc());
+        return getUrl().equals(other.getUrl()) && getDesc().equals(other.getDesc()) && selected == other.selected;
     }
 
     public record Rule(Episode episode, int score) {

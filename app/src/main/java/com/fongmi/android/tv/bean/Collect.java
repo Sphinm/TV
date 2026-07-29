@@ -98,7 +98,7 @@ public class Collect implements Parcelable, Diffable<Collect> {
 
     @Override
     public boolean isSameContent(Collect other) {
-        return equals(other);
+        return selected == other.selected && getPage() == other.getPage() && getList().size() == other.getList().size();
     }
 
     public static final Creator<Collect> CREATOR = new Creator<>() {

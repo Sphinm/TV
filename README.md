@@ -40,7 +40,7 @@ TV/
 **本 fork 精簡項：**
 
 - 僅保留 TV 版（`leanback`），僅打包 **32 位** `armeabi-v7a`（適用多數小米電視等舊款設備）
-- 內建精簡 Vod 配置（`assets/config/vod.json`），`spider.jar` 與 Vosk 語音模型從 CDN 按需下載
+- 內建精簡 Vod 配置（`assets/config/vod.json`），`spider.jar` 打包在 `assets/jar/` 中
 - 支援掃碼 / URL 換源
 - 配置與首頁推薦磁碟快取，命中後先展示、後台刷新
 - 已移除：手機版、直播、DLNA、Android Auto、Python、Thunder/Jianpian 協議、MPV 播放器
@@ -134,16 +134,6 @@ Release 簽名需在 `local.properties` 配置：
 storeFile=keystore/tv-release.jks
 keyAlias=tv-release
 storePassword=你的密码
-```
-
-**语音搜索（Vosk 离线识别）：**
-
-首次使用语音搜索时会从 CDN 下载中文语音模型（约 42MB），下载完成后完全离线免费可用。CDN 地址见 `Constant.REMOTE_VOSK_MODEL`。
-
-本地开发如需离线打包模型，可执行：
-
-```bash
-bash scripts/download_vosk_model.sh
 ```
 
 ---

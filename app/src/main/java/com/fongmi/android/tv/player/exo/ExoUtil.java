@@ -64,7 +64,7 @@ public class ExoUtil {
         if (PlayerSetting.isPreferAAC()) builder.setPreferredAudioMimeType(MimeTypes.AUDIO_AAC);
         builder.setPreferredTextLanguages(LangUtil.getPreferredTextLanguages());
         builder.setTunnelingEnabled(PlayerSetting.isTunnelingEnabled());
-        builder.setForceHighestSupportedBitrate(true);
+        builder.setForceHighestSupportedBitrate(false);
         trackSelector.setParameters(builder.build());
         return trackSelector;
     }

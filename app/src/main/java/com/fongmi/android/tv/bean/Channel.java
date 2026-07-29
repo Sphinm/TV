@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.gson.HeaderAdapter;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.Formatters;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.ResUtil;
@@ -28,7 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class Channel {
+public class Channel implements Diffable<Channel> {
 
     @SerializedName("urls")
     private List<String> urls;
@@ -423,5 +424,15 @@ public class Channel {
         if (!name.isEmpty()) return Objects.hash(name);
         if (!number.isEmpty()) return Objects.hash(number);
         return 0;
+    }
+
+    @Override
+    public boolean isSameItem(Channel other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Channel other) {
+        return Objects.equals(getShow(), other.getShow()) && isSelected() == other.isSelected();
     }
 }

@@ -23,6 +23,7 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.setting.PlayerSetting;
 
 public class ResUtil {
 
@@ -130,5 +131,13 @@ public class ResUtil {
         Paint paint = new Paint();
         paint.setTextSize(sp2px(size));
         return (int) paint.measureText(content);
+    }
+
+    public static int[] getVodPosterSize() {
+        int column = Math.abs(PlayerSetting.getSize() - 7);
+        int space = dp2px(48) + dp2px(16 * (column - 1));
+        int width = (getScreenWidth() - space) / column;
+        int height = (int) (width / 0.75f);
+        return new int[]{width, height};
     }
 }

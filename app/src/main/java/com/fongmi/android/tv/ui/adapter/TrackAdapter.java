@@ -5,22 +5,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.bean.Track;
 import com.fongmi.android.tv.databinding.AdapterTrackBinding;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> {
+public class TrackAdapter extends BaseDiffAdapter<Track, TrackAdapter.ViewHolder> {
 
     private final OnClickListener listener;
-    private final List<Track> mItems;
 
     public TrackAdapter(OnClickListener listener) {
         this.listener = listener;
-        this.mItems = new ArrayList<>();
     }
 
     public interface OnClickListener {
@@ -28,20 +24,14 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
         void onItemClick(Track item);
     }
 
-    public TrackAdapter addAll(List<Track> items) {
-        mItems.addAll(items);
-        notifyDataSetChanged();
+    public TrackAdapter withItems(List<Track> items) {
+        super.addAll(items);
         return this;
     }
 
     public int getSelected() {
-        for (int i = 0; i < mItems.size(); i++) if (mItems.get(i).isSelected()) return i;
+        for (int i = 0; i < getItemCount(); i++) if (getItem(i).isSelected()) return i;
         return 0;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
     }
 
     @NonNull
@@ -52,12 +42,12 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Track item = mItems.get(position);
+        Track item = getItem(position);
         holder.binding.text.setText(item.getName());
         holder.binding.text.setSelected(item.isSelected());
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final AdapterTrackBinding binding;
 
@@ -69,7 +59,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
         @Override
         public void onClick(View view) {
-            listener.onItemClick(mItems.get(getLayoutPosition()).toggle());
+            listener.onItemClick(getItem(getLayoutPosition()).toggle());
         }
     }
 }

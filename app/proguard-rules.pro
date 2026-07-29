@@ -1,14 +1,24 @@
 # TV
 -keep class androidx.leanback.widget.** { *; }
 -keep class com.fongmi.quickjs.method.** { *; }
--keep class com.fongmi.android.tv.bean.** { *; }
 
-# Vosk
--keep class org.vosk.** { *; }
--dontwarn java.awt.Component
-
-# Gson
+# Gson (required by app and spider.jar)
 -keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+-keep class * extends com.google.gson.TypeAdapter
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Room
+-keep @androidx.room.Entity class *
+-keepclassmembers class * {
+    @androidx.room.* <methods>;
+}
 
 # SimpleXML
 -keep interface org.simpleframework.xml.core.Label { public *; }
@@ -24,18 +34,20 @@
 -keepclassmembers,allowobfuscation class * { @org.simpleframework.xml.Attribute <fields>; }
 -keepclassmembers,allowobfuscation class * { @org.simpleframework.xml.ElementList <fields>; }
 
-# OkHttp
+# OkHttp / Okio (required by dynamically loaded spider.jar)
 -dontwarn okhttp3.**
--keep class okio.** { *; }
+-dontwarn okio.**
 -keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-keep class okio.** { *; }
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
 # SLF4J
 -keeppackagenames org.slf4j.**
 -keep class org.slf4j.** { *; }
 
-# Kotlin
--keeppackagenames kotlin.**
--keep class kotlin.** { *; }
+# Kotlin (transitive dependency metadata only)
+-dontwarn kotlin.**
 
 # CatVod
 -keep class com.github.catvod.Proxy { *; }

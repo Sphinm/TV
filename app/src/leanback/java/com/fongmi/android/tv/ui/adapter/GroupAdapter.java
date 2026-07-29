@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.bean.Group;
 import com.fongmi.android.tv.databinding.AdapterGroupBinding;
@@ -13,47 +12,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
+public class GroupAdapter extends BaseDiffAdapter<Group, GroupAdapter.ViewHolder> {
 
     private final OnClickListener mListener;
-    private final List<Group> mItems;
 
     public GroupAdapter(OnClickListener listener) {
         mListener = listener;
-        mItems = new ArrayList<>();
     }
 
     public void addAll(List<Group> items) {
-        mItems.clear();
-        mItems.addAll(items);
-        notifyDataSetChanged();
+        setItems(items);
     }
 
     public void add(int position, Group item) {
-        mItems.add(position, item);
-        notifyItemInserted(position);
-    }
-
-    public void clear() {
-        mItems.clear();
-        notifyDataSetChanged();
+        List<Group> current = new ArrayList<>(getItems());
+        current.add(position, item);
+        setItems(current);
     }
 
     public Group get(int position) {
-        return mItems.get(position);
+        return getItem(position);
     }
 
     public int indexOf(Group item) {
-        return mItems.indexOf(item);
+        return getItems().indexOf(item);
     }
 
     public List<Group> unmodifiableList() {
-        return Collections.unmodifiableList(mItems);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
+        return Collections.unmodifiableList(getItems());
     }
 
     @NonNull
@@ -64,7 +50,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Group item = mItems.get(position);
+        Group item = getItem(position);
         holder.binding.name.setText(item.getName());
         holder.binding.getRoot().setOnClickListener(v -> mListener.onItemClick(item));
     }
@@ -73,7 +59,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         void onItemClick(Group item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         private final AdapterGroupBinding binding;
 

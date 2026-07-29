@@ -4,39 +4,18 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.bean.Collect;
 import com.fongmi.android.tv.databinding.AdapterTypeBinding;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class CollectAdapter extends RecyclerView.Adapter<CollectAdapter.ViewHolder> {
-
-    private final List<Collect> mItems;
-
-    public CollectAdapter() {
-        mItems = new ArrayList<>();
-    }
+public class CollectAdapter extends BaseDiffAdapter<Collect, CollectAdapter.ViewHolder> {
 
     public void add(Collect item) {
-        mItems.add(item);
-        notifyItemInserted(mItems.size() - 1);
-    }
-
-    public void clear() {
-        mItems.clear();
-        notifyDataSetChanged();
+        add(item, null);
     }
 
     public Collect get(int position) {
-        return mItems.get(position);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
+        return getItem(position);
     }
 
     @NonNull
@@ -47,12 +26,12 @@ public class CollectAdapter extends RecyclerView.Adapter<CollectAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Collect item = mItems.get(position);
+        Collect item = getItem(position);
         holder.binding.getRoot().setOnClickListener(null);
         holder.binding.text.setText(item.getSite().getName());
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         private final AdapterTypeBinding binding;
 

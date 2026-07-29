@@ -193,7 +193,7 @@ public class Flag implements Parcelable, Diffable<Flag> {
 
     @Override
     public boolean isSameContent(Flag other) {
-        return equals(other);
+        return getShow().equals(other.getShow()) && selected == other.selected;
     }
 
     public static final Creator<Flag> CREATOR = new Creator<>() {

@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.fongmi.android.tv.bean.Channel;
@@ -13,46 +12,30 @@ import com.fongmi.android.tv.databinding.AdapterChannelBinding;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ViewHolder> {
+public class ChannelAdapter extends BaseDiffAdapter<Channel, ChannelAdapter.ViewHolder> {
 
     private final OnClickListener mListener;
-    private final List<Channel> mItems;
 
     public ChannelAdapter(OnClickListener listener) {
         mListener = listener;
-        mItems = new ArrayList<>();
     }
 
     public void addAll(List<Channel> items) {
-        mItems.clear();
-        mItems.addAll(items);
-        notifyDataSetChanged();
+        setItems(items);
     }
 
     public void remove(Channel item) {
-        int index = mItems.indexOf(item);
-        if (index < 0) return;
-        mItems.remove(index);
-        notifyItemRemoved(index);
-    }
-
-    public void clear() {
-        mItems.clear();
-        notifyDataSetChanged();
+        remove(item, null);
     }
 
     public Channel get(int position) {
-        return mItems.get(position);
+        return getItem(position);
     }
 
     public void setSelected(Channel selected) {
-        for (Channel item : mItems) item.setSelected(selected);
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
+        List<Channel> current = new ArrayList<>(getItems());
+        for (Channel item : current) item.setSelected(selected);
+        setItems(current);
     }
 
     @NonNull
@@ -63,7 +46,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Channel item = mItems.get(position);
+        Channel item = getItem(position);
         item.loadLogo(holder.binding.logo);
         holder.binding.name.setText(item.getShow());
         holder.binding.number.setText(item.getNumber());
@@ -87,7 +70,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ViewHold
         boolean onLongClick(Channel item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         private final AdapterChannelBinding binding;
 

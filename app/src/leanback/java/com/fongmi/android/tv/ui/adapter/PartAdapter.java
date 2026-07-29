@@ -4,46 +4,30 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.databinding.AdapterPartBinding;
 import com.fongmi.android.tv.utils.ResUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PartAdapter extends RecyclerView.Adapter<PartAdapter.ViewHolder> {
+public class PartAdapter extends StringDiffAdapter<PartAdapter.ViewHolder> {
 
     private final OnClickListener mListener;
-    private final List<String> mItems;
     private final int maxWidth;
     private int nextFocusUp;
 
     public PartAdapter(OnClickListener listener) {
         mListener = listener;
-        mItems = new ArrayList<>();
         maxWidth = ResUtil.getScreenWidth() - ResUtil.dp2px(48);
     }
 
     public void addAll(List<String> items) {
-        mItems.clear();
-        mItems.addAll(items);
-        notifyDataSetChanged();
-    }
-
-    public void clear() {
-        mItems.clear();
-        notifyDataSetChanged();
+        setItems(items);
     }
 
     public void setNextFocusUp(int nextFocusUp) {
         this.nextFocusUp = nextFocusUp;
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
+        notifyItemRangeChanged(0, getItemCount());
     }
 
     @NonNull
@@ -54,7 +38,7 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String text = mItems.get(position);
+        String text = getItem(position);
         holder.binding.text.setText(text);
         holder.binding.text.setMaxWidth(maxWidth);
         holder.binding.text.setNextFocusUpId(nextFocusUp);
@@ -66,7 +50,7 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.ViewHolder> {
         void onItemClick(String item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         private final AdapterPartBinding binding;
 

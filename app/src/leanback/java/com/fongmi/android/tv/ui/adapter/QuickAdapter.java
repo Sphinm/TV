@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.bean.Vod;
 import com.fongmi.android.tv.databinding.AdapterQuickBinding;
@@ -13,46 +12,35 @@ import com.fongmi.android.tv.utils.ResUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuickAdapter extends RecyclerView.Adapter<QuickAdapter.ViewHolder> {
+public class QuickAdapter extends BaseDiffAdapter<Vod, QuickAdapter.ViewHolder> {
 
     private final OnClickListener mListener;
-    private final List<Vod> mItems;
     private final int width;
 
     public QuickAdapter(OnClickListener listener) {
         mListener = listener;
-        mItems = new ArrayList<>();
         int space = ResUtil.dp2px(24) + ResUtil.dp2px(32);
         width = (ResUtil.getScreenWidth() - space) / 4;
     }
 
     public void addAll(List<Vod> items) {
-        int start = mItems.size();
-        mItems.addAll(items);
-        notifyItemRangeInserted(start, items.size());
+        List<Vod> current = new ArrayList<>(getItems());
+        current.addAll(items);
+        setItems(current);
     }
 
     public void remove(int position) {
-        mItems.remove(position);
-        notifyItemRemoved(position);
-    }
-
-    public void clear() {
-        mItems.clear();
-        notifyDataSetChanged();
+        List<Vod> current = new ArrayList<>(getItems());
+        current.remove(position);
+        setItems(current);
     }
 
     public Vod get(int position) {
-        return mItems.get(position);
+        return getItem(position);
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
     }
 
     @NonNull
@@ -65,7 +53,7 @@ public class QuickAdapter extends RecyclerView.Adapter<QuickAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Vod item = mItems.get(position);
+        Vod item = getItem(position);
         holder.binding.name.setText(item.getName());
         holder.binding.site.setText(item.getSiteName());
         holder.binding.remark.setText(item.getRemarks());
@@ -77,7 +65,7 @@ public class QuickAdapter extends RecyclerView.Adapter<QuickAdapter.ViewHolder> 
         void onItemClick(Vod item);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         private final AdapterQuickBinding binding;
 

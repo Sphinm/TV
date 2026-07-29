@@ -16,6 +16,7 @@ import com.fongmi.android.tv.api.loader.BaseLoader;
 import com.fongmi.android.tv.db.AppDatabase;
 import com.fongmi.android.tv.gson.ExtAdapter;
 import com.fongmi.android.tv.gson.HeaderAdapter;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkHttp;
@@ -32,7 +33,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Entity
-public class Site implements Parcelable {
+public class Site implements Parcelable, Diffable<Site> {
 
     @NonNull
     @PrimaryKey
@@ -344,6 +345,16 @@ public class Site implements Parcelable {
     @Override
     public int hashCode() {
         return Objects.hash(getKey());
+    }
+
+    @Override
+    public boolean isSameItem(Site other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Site other) {
+        return Objects.equals(getName(), other.getName()) && isSelected() == other.isSelected() && isSearchable() == other.isSearchable() && isChangeable() == other.isChangeable() && isHide() == other.isHide();
     }
 
     @Override

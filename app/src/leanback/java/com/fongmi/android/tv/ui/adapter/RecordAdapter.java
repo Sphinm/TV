@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.databinding.AdapterSearchRecordBinding;
@@ -15,15 +14,14 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder> {
+public class RecordAdapter extends StringDiffAdapter<RecordAdapter.ViewHolder> {
 
     private final OnClickListener listener;
-    private final List<String> mItems;
 
     public RecordAdapter(OnClickListener listener) {
         this.listener = listener;
-        this.mItems = getItems();
-        this.listener.onDataChanged(mItems.size());
+        setItems(loadItems());
+        listener.onDataChanged(getItemCount());
     }
 
     public interface OnClickListener {
@@ -33,26 +31,18 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         void onDataChanged(int size);
     }
 
-    private List<String> getItems() {
+    private List<String> loadItems() {
         if (Setting.getKeyword().isEmpty()) return new ArrayList<>();
         return App.gson().fromJson(Setting.getKeyword(), TypeToken.getParameterized(List.class, String.class).getType());
     }
 
-    private void checkToAdd(String item) {
-        mItems.remove(item);
-        mItems.add(0, item);
-        if (mItems.size() > 9) mItems.remove(9);
-    }
-
     public void add(String item) {
-        checkToAdd(item);
-        notifyDataSetChanged();
+        List<String> items = new ArrayList<>(getItems());
+        items.remove(item);
+        items.add(0, item);
+        if (items.size() > 9) items.remove(9);
+        setItems(items);
         listener.onDataChanged(getItemCount());
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
     }
 
     @NonNull
@@ -63,12 +53,12 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String text = mItems.get(position);
+        String text = getItem(position);
         holder.binding.text.setText(text);
         holder.binding.text.setOnClickListener(v -> listener.onItemClick(text));
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    public class ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements View.OnLongClickListener {
 
         private final AdapterSearchRecordBinding binding;
 
@@ -80,10 +70,13 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
 
         @Override
         public boolean onLongClick(View v) {
-            mItems.remove(getLayoutPosition());
-            notifyItemRemoved(getLayoutPosition());
+            List<String> items = new ArrayList<>(getItems());
+            int position = getLayoutPosition();
+            if (position < 0 || position >= items.size()) return false;
+            items.remove(position);
+            setItems(items);
             listener.onDataChanged(getItemCount());
-            Setting.putKeyword(App.gson().toJson(mItems));
+            Setting.putKeyword(App.gson().toJson(items));
             return true;
         }
     }

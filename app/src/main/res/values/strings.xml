@@ -193,6 +193,9 @@
     <string name="search_record">History</string>
     <string name="search_suggest">Suggest</string>
     <string name="search_hot">Hot</string>
+    <string name="speech_permission_denied">语音搜索需要麦克风权限。</string>
+    <string name="speech_unavailable">当前设备不支持语音搜索。</string>
+    <string name="speech_model_loading">语音模型加载中，请稍后再试。</string>
 
     <!-- Dialog -->
     <string name="dialog_edit">Edit</string>

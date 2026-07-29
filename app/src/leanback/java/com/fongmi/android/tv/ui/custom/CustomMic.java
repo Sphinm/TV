@@ -1,38 +1,30 @@
 package com.fongmi.android.tv.ui.custom;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.FragmentActivity;
 
 import com.fongmi.android.tv.R;
+import com.fongmi.android.tv.speech.VoskRecognizer;
 import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.PermissionUtil;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.github.bassaer.library.MDColor;
 
-import java.util.List;
-
 public class CustomMic extends AppCompatImageView {
 
-    private ActivityResultLauncher<Intent> mLauncher;
-    private CustomTextListener mListener;
-    private SpeechRecognizer mRecognizer;
+    private VoskRecognizer mRecognizer;
+    private MicCallback mMicCallback;
     private FragmentActivity mActivity;
-    private boolean mAvailable;
     private boolean mListen;
+    private boolean mModelReady;
 
     public CustomMic(@NonNull Context context) {
         super(context);
@@ -42,96 +34,82 @@ public class CustomMic extends AppCompatImageView {
         super(context, attrs);
     }
 
-    private boolean isAvailable() {
-        return mAvailable;
+    public void setListener(FragmentActivity activity, MicCallback callback) {
+        mActivity = activity;
+        mMicCallback = callback;
+        VoskRecognizer.prepare(activity, () -> {
+            mModelReady = true;
+            setEnabled(true);
+        }, message -> {
+            mModelReady = false;
+            setEnabled(false);
+        });
+    }
+
+    public void start() {
+        if (mActivity == null) return;
+        if (!mModelReady) {
+            dispatchError(getContext().getString(R.string.speech_model_loading));
+            return;
+        }
+        PermissionUtil.requestAudio(mActivity, granted -> {
+            if (!granted) {
+                dispatchError(getContext().getString(R.string.speech_permission_denied));
+                return;
+            }
+            if (mRecognizer == null) mRecognizer = new VoskRecognizer();
+            mRecognizer.start(new VoskRecognizer.Callback() {
+                @Override
+                public void onStart() {
+                    requestFocus();
+                    updateUI(true);
+                }
+
+                @Override
+                public void onPartial(String text) {
+                }
+
+                @Override
+                public void onResult(String text) {
+                    dispatchResult(text);
+                }
+
+                @Override
+                public void onError(String message) {
+                    dispatchError(message);
+                }
+
+                @Override
+                public void onEnd() {
+                    updateUI(false);
+                    if (mMicCallback != null) mMicCallback.onEnd();
+                }
+            });
+        });
+    }
+
+    public void stop() {
+        if (mRecognizer != null) mRecognizer.stop();
+        updateUI(false);
+    }
+
+    public void destroy() {
+        if (mRecognizer != null) mRecognizer.cancel();
+        mRecognizer = null;
     }
 
     private boolean isListen() {
         return mListen;
     }
 
-    private Intent getIntent() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        return intent;
-    }
-
-    public void setListener(FragmentActivity activity, CustomTextListener listener) {
-        mActivity = activity;
-        mListener = listener;
-        mListener.setDone(() -> updateUI(false));
-        mAvailable = SpeechRecognizer.isRecognitionAvailable(activity);
-        initSpeech();
-    }
-
-    private void initSpeech() {
-        if (isAvailable()) initRecognizer();
-        else if (hasResolveActivity()) initLauncher();
-        else setVisibility(GONE);
-    }
-
-    private boolean hasResolveActivity() {
-        return getIntent().resolveActivity(mActivity.getPackageManager()) != null;
-    }
-
-    private void initRecognizer() {
-        if (mRecognizer == null) mRecognizer = SpeechRecognizer.createSpeechRecognizer(mActivity);
-        mRecognizer.setRecognitionListener(mListener);
-    }
-
-    private void initLauncher() {
-        mLauncher = mActivity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) return;
-            List<String> texts = result.getData().getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            if (texts != null && !texts.isEmpty()) mListener.onResults(texts.get(0));
-        });
-    }
-
-    public void start() {
-        if (mActivity == null) return;
-        if (isAvailable()) startRecognizer();
-        else launchIntent();
-    }
-
-    private void startRecognizer() {
-        if (mRecognizer == null) return;
-        PermissionUtil.requestAudio(mActivity, allGranted -> {
-            if (allGranted) startListening();
-        });
-    }
-
-    private void startListening() {
-        try {
-            mRecognizer.startListening(getIntent());
-            requestFocus();
-            updateUI(true);
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void launchIntent() {
-        try {
-            if (mLauncher == null) return;
-            mLauncher.launch(getIntent());
-        } catch (Exception ignored) {
-        }
-    }
-
-    public void stop() {
-        if (mRecognizer == null) return;
-        mRecognizer.stopListening();
+    private void dispatchResult(String text) {
         updateUI(false);
+        if (mMicCallback != null) mMicCallback.onResults(text == null ? "" : text.trim());
     }
 
-    public void destroy() {
-        if (mRecognizer != null) {
-            mRecognizer.destroy();
-            mRecognizer = null;
-        }
-        if (mLauncher != null) {
-            mLauncher.unregister();
-            mLauncher = null;
-        }
+    private void dispatchError(String message) {
+        updateUI(false);
+        if (mMicCallback != null) mMicCallback.onError(message);
     }
 
     private void updateUI(boolean listening) {
@@ -154,8 +132,8 @@ public class CustomMic extends AppCompatImageView {
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-        if (gainFocus && isAvailable()) start();
-        else if (!gainFocus) stop();
+        if (gainFocus) start();
+        else stop();
     }
 
     @Override

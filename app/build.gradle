@@ -129,6 +129,8 @@ dependencies {
     implementation libs.textdrawable
     leanbackImplementation libs.leanback
     leanbackImplementation libs.androidautosize
+    implementation("com.alphacephei:vosk-android:${libs.versions.vosk.get()}@aar")
+    implementation("net.java.dev.jna:jna:${libs.versions.jna.get()}@aar")
     annotationProcessor libs.room.compiler
     annotationProcessor libs.eventbus.annotation.processor
     annotationProcessor libs.glide.compiler

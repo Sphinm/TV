@@ -1,7 +1,8 @@
 <resources>
 
     <style name="Theme.Base" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
@@ -44,6 +45,23 @@
         <item name="android:nextFocusUp">@id/exo_progress</item>
         <item name="android:textColor">@color/text</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextSection">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_section</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextSettingLabel">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">@dimen/text_label</item>
+    </style>
+
+    <style name="TextSettingValue">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_label</item>
     </style>
 
 </resources>

@@ -32,6 +32,9 @@ public class HistoryPresenter extends Presenter {
         void onItemDelete(History item);
 
         boolean onLongClick();
+
+        default void onItemFocus(History item) {
+        }
     }
 
     private void setLayoutSize() {
@@ -54,6 +57,9 @@ public class HistoryPresenter extends Presenter {
         root.setOnClickListener(view -> {
             if (isDelete()) listener.onItemDelete(item);
             else listener.onItemClick(item);
+        });
+        root.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) listener.onItemFocus(item);
         });
     }
 

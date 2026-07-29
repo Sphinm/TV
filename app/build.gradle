@@ -52,7 +52,7 @@ android {
     signingConfigs {
         release {
             if (localProps['storeFile']) {
-                storeFile file(localProps['storeFile'])
+                storeFile rootProject.file(localProps['storeFile'])
                 keyAlias localProps['keyAlias']
                 keyPassword localProps['storePassword']
                 storePassword localProps['storePassword']
@@ -91,12 +91,12 @@ android {
 }
 
 androidComponents {
-    onVariants(selector().withBuildType('release')) { variant ->
+    onVariants(selector()) { variant ->
         def flavors = variant.productFlavors.collectEntries { [(it.first): it.second] }
-        def mode = flavors['mode'] ?: 'mode'
         def abi = flavors['abi'] ?: 'abi'
+        def type = variant.buildType
         variant.outputs.each { output ->
-            output.outputFileName.set("${mode}-${abi}.apk")
+            output.outputFileName.set(type == 'release' ? "apple_tv-${abi}.apk" : "apple_tv-${abi}-${type}.apk")
         }
     }
 }

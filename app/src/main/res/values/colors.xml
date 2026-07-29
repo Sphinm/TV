@@ -26,4 +26,13 @@
     <color name="white_80">#CCFFFFFF</color>
     <color name="white_90">#E6FFFFFF</color>
 
+    <color name="text">@color/white</color>
+    <color name="text_secondary">@color/white_70</color>
+    <color name="text_hint">@color/white_50</color>
+    <color name="accent">#0A84FF</color>
+    <color name="accent_20">#330A84FF</color>
+    <color name="surface">#1C1C1E</color>
+    <color name="surface_elevated">#2C2C2E</color>
+    <color name="grey_800">#1E1E1E</color>
+
 </resources>

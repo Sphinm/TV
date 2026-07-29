@@ -42,6 +42,7 @@
     <string name="play_reset">刷新</string>
     <string name="play_replay">重播</string>
     <string name="play_decode">硬解</string>
+    <string name="play_more">更多</string>
     <string name="play_timer">定時</string>
     <string name="play_edition">標題</string>
     <string name="play_chapter">章節</string>
@@ -120,6 +121,9 @@
 
     <!-- Setting -->
     <string name="setting_vod">點播</string>
+    <string name="setting_section_source">配置源</string>
+    <string name="setting_section_playback">播放</string>
+    <string name="setting_section_general">系統</string>
     <string name="setting_live">直播</string>
     <string name="setting_wall">壁紙</string>
     <string name="setting_player">播放設定</string>

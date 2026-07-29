@@ -325,8 +325,9 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         mBinding.control.action.edition.setOnClickListener(view -> onEdition());
         mBinding.control.action.chapter.setOnClickListener(view -> onChapter());
         mBinding.control.action.opening.setOnClickListener(view -> onOpening());
-        mBinding.control.action.ending.setOnLongClickListener(view -> onEndingReset());
         mBinding.control.action.opening.setOnLongClickListener(view -> onOpeningReset());
+        mBinding.control.action.ending.setOnLongClickListener(view -> onEndingReset());
+        mBinding.control.action.more.setOnClickListener(view -> onMore());
         mBinding.video.setOnTouchListener((view, event) -> mKeyDown.onTouchEvent(event));
         mBinding.flag.addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
             @Override
@@ -965,9 +966,14 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         hideControl();
     }
 
+    private void onMore() {
+        mOverlay.toggleMore();
+        setR1Callback();
+    }
+
     private void onToggle() {
         if (isVisible(mBinding.control.getRoot())) hideControl();
-        else showControl(getFocus2());
+        else showControl(mBinding.control.seek);
     }
 
     private void showProgress() {

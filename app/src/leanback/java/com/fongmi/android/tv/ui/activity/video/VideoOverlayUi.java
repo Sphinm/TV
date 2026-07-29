@@ -43,6 +43,7 @@ public class VideoOverlayUi {
     private View focus1;
     private View focus2;
     private boolean fullscreen;
+    private boolean moreExpanded;
 
     public VideoOverlayUi(ActivityVideoBinding binding, FragmentActivity activity, PlayerView player, Runnable hideControl, Runnable updateTraffic) {
         this.binding = binding;
@@ -141,12 +142,37 @@ public class VideoOverlayUi {
 
     public void showControl(View view) {
         binding.control.getRoot().setVisibility(View.VISIBLE);
-        view.requestFocus();
+        boolean expanded = isActionView(view);
+        binding.control.action.primary.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        if (!expanded) {
+            moreExpanded = false;
+            binding.control.action.secondary.setVisibility(View.GONE);
+            binding.control.seek.requestFocus();
+        } else {
+            binding.control.action.secondary.setVisibility(moreExpanded ? View.VISIBLE : View.GONE);
+            view.requestFocus();
+        }
         scheduleHideControl();
+    }
+
+    public void toggleMore() {
+        moreExpanded = !moreExpanded;
+        binding.control.action.primary.setVisibility(View.VISIBLE);
+        binding.control.action.secondary.setVisibility(moreExpanded ? View.VISIBLE : View.GONE);
+        if (moreExpanded) binding.control.action.parse.requestFocus();
+        else binding.control.action.more.requestFocus();
+        scheduleHideControl();
+    }
+
+    private boolean isActionView(View view) {
+        return view != null && view != binding.control.seek && view.getId() != R.id.seek;
     }
 
     public void hideControl() {
         binding.control.getRoot().setVisibility(View.GONE);
+        binding.control.action.primary.setVisibility(View.GONE);
+        binding.control.action.secondary.setVisibility(View.GONE);
+        moreExpanded = false;
         App.removeCallbacks(hideControl);
     }
 

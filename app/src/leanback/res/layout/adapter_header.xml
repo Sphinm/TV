@@ -4,6 +4,11 @@
     android:id="@+id/text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:drawablePadding="10dp"
+    android:drawableStart="@drawable/shape_section_header"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
     android:textColor="@color/white"
-    android:textSize="24sp"
+    android:textSize="@dimen/text_title"
+    android:textStyle="bold"
     tools:text="@string/home_recommend" />

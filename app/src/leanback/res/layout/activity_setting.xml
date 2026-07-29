@@ -10,7 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/screen_padding">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/setting_section_source" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
@@ -30,24 +37,22 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_weight="0.3"
-                    android:text="@string/setting_vod"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_vod" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/vodUrl"
+                    style="@style/TextSettingValue"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.7"
                     android:ellipsize="middle"
                     android:gravity="end"
                     android:singleLine="true"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
                     tools:ignore="NestedWeights"
                     tools:text="https://" />
 
@@ -95,24 +100,22 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_weight="0.3"
-                    android:text="@string/setting_wall"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_wall" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/wallUrl"
+                    style="@style/TextSettingValue"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.7"
                     android:ellipsize="middle"
                     android:gravity="end"
                     android:singleLine="true"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
                     tools:ignore="NestedWeights"
                     tools:text="https://" />
 
@@ -141,6 +144,14 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/section_spacing"
+            android:layout_marginBottom="8dp"
+            android:text="@string/setting_section_playback" />
+
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/player"
             android:layout_width="match_parent"
@@ -152,11 +163,10 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                style="@style/TextSettingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/setting_player"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:text="@string/setting_player" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -171,13 +181,20 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                style="@style/TextSettingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/setting_danmaku"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:text="@string/setting_danmaku" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/TextSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/section_spacing"
+            android:layout_marginBottom="8dp"
+            android:text="@string/setting_section_general" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/incognito"
@@ -190,20 +207,18 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                style="@style/TextSettingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="@string/setting_incognito"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:text="@string/setting_incognito" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/incognitoText"
+                style="@style/TextSettingValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:textColor="@color/white"
-                android:textSize="18sp"
                 tools:text="Off" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -219,20 +234,18 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                style="@style/TextSettingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="@string/setting_doh"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:text="@string/setting_doh" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/dohText"
+                style="@style/TextSettingValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:textColor="@color/white"
-                android:textSize="18sp"
                 tools:text="Google" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -249,20 +262,18 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                style="@style/TextSettingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="@string/setting_size"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:text="@string/setting_size" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/sizeText"
+                style="@style/TextSettingValue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:textColor="@color/white"
-                android:textSize="18sp"
                 tools:text="Medium" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -285,11 +296,10 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/setting_backup"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_backup" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -304,11 +314,10 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/setting_restore"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_restore" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -331,20 +340,18 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="@string/setting_cache"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_cache" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/cacheText"
+                    style="@style/TextSettingValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
                     tools:text="1.0 MB" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -360,20 +367,18 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextSettingLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="@string/setting_version"
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/setting_version" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/versionText"
+                    style="@style/TextSettingValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
                     tools:text="1.2.1" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>

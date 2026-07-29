@@ -50,6 +50,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         return this;
     }
 
+    protected CustomWallView getWallView() {
+        ViewGroup content = findViewById(android.R.id.content);
+        if (content == null || content.getChildCount() == 0) return null;
+        View child = content.getChildAt(0);
+        return child instanceof CustomWallView ? (CustomWallView) child : null;
+    }
+
     protected boolean customWall() {
         return true;
     }

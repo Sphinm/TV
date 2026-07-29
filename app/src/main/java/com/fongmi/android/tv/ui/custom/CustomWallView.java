@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -20,6 +21,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 import androidx.palette.graphics.Palette;
 
+import com.bumptech.glide.Glide;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.databinding.ViewWallBinding;
 import com.fongmi.android.tv.event.ConfigEvent;
@@ -47,6 +49,7 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
     private GifDrawable drawable;
     private PlayerView video;
     private ExoPlayer player;
+    private boolean backdropActive;
 
     public CustomWallView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -67,9 +70,27 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
     }
 
     private void refresh() {
+        if (backdropActive) return;
         stop();
         load();
         theme();
+    }
+
+    public void showBackdrop(String url) {
+        if (binding == null || TextUtils.isEmpty(url)) return;
+        backdropActive = true;
+        binding.scrim.setVisibility(VISIBLE);
+        binding.backdrop.setVisibility(VISIBLE);
+        Glide.with(this).load(url).centerCrop().into(binding.backdrop);
+    }
+
+    public void clearBackdrop() {
+        if (binding == null || !backdropActive) return;
+        backdropActive = false;
+        binding.scrim.setVisibility(GONE);
+        binding.backdrop.setVisibility(GONE);
+        Glide.with(this).clear(binding.backdrop);
+        refresh();
     }
 
     private void stop() {

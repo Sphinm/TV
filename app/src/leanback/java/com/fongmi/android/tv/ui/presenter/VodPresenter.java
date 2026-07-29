@@ -39,6 +39,9 @@ public class VodPresenter extends Presenter {
         void onItemClick(Vod item);
 
         boolean onLongClick(Vod item);
+
+        default void onItemFocus(Vod item) {
+        }
     }
 
     @NonNull

@@ -45,6 +45,7 @@ import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.player.extractor.Source;
 import com.fongmi.android.tv.server.Server;
 import com.fongmi.android.tv.service.PlaybackService;
+import com.fongmi.android.tv.speech.VoskRecognizer;
 import com.fongmi.android.tv.ui.adapter.BaseDiffCallback;
 import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.custom.CustomRowPresenter;
@@ -120,6 +121,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         initConfig();
         setTitle();
         setupSidebar();
+        App.post(() -> VoskRecognizer.prepare(getApplicationContext(), () -> {}, message -> {}), 500);
         App.post(() -> Updater.create().start(this), 3000);
     }
 

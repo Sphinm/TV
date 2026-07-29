@@ -21,6 +21,9 @@ android {
         targetSdk libs.versions.targetSdk.get().toInteger()
         versionCode 556
         versionName "5.5.6"
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString(), "eventBusIndex": "com.fongmi.android.tv.event.EventIndex"]
@@ -28,19 +31,11 @@ android {
         }
     }
 
-    flavorDimensions = ["mode", "abi"]
+    flavorDimensions = ["mode"]
 
     productFlavors {
         leanback {
             dimension "mode"
-        }
-        arm64_v8a {
-            dimension "abi"
-            ndk { abiFilters "arm64-v8a" }
-        }
-        armeabi_v7a {
-            dimension "abi"
-            ndk { abiFilters "armeabi-v7a" }
         }
     }
 
@@ -92,11 +87,9 @@ android {
 
 androidComponents {
     onVariants(selector()) { variant ->
-        def flavors = variant.productFlavors.collectEntries { [(it.first): it.second] }
-        def abi = flavors['abi'] ?: 'abi'
         def type = variant.buildType
         variant.outputs.each { output ->
-            output.outputFileName.set(type == 'release' ? "infuse-${abi}.apk" : "infuse-${abi}-${type}.apk")
+            output.outputFileName.set(type == 'release' ? "infuse.apk" : "infuse-${type}.apk")
         }
     }
 }
@@ -129,6 +122,8 @@ dependencies {
     implementation libs.textdrawable
     leanbackImplementation libs.leanback
     leanbackImplementation libs.androidautosize
+    implementation("com.alphacephei:vosk-android:${libs.versions.vosk.get()}@aar")
+    implementation("net.java.dev.jna:jna:${libs.versions.jna.get()}@aar")
     annotationProcessor libs.room.compiler
     annotationProcessor libs.eventbus.annotation.processor
     annotationProcessor libs.glide.compiler

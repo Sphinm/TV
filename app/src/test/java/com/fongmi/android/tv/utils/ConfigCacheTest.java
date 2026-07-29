@@ -11,10 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 28)
+@org.robolectric.annotation.Config(manifest = org.robolectric.annotation.Config.NONE, sdk = 28)
 public class ConfigCacheTest {
 
     @Before
@@ -24,14 +22,14 @@ public class ConfigCacheTest {
 
     @Test
     public void putAndGet_roundTrip() {
-        Config config = Config.create(0, "http://example.com/vod.json");
+        Config config = Config.create(0).url("http://example.com/vod.json");
         ConfigCache.put(config, "{\"sites\":[]}");
         assertEquals("{\"sites\":[]}", ConfigCache.get(config));
     }
 
     @Test
     public void clear_removesCachedValue() {
-        Config config = Config.create(0, "http://example.com/clear.json");
+        Config config = Config.create(0).url("http://example.com/clear.json");
         ConfigCache.put(config, "{\"sites\":[]}");
         ConfigCache.clear(config);
         assertNull(ConfigCache.get(config));

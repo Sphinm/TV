@@ -4,9 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.github.catvod.Init;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -14,6 +18,11 @@ import fi.iki.elonen.NanoHTTPD;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE, sdk = 28)
 public class ServerAuthTest {
+
+    @Before
+    public void setUp() {
+        Init.set(RuntimeEnvironment.getApplication());
+    }
 
     @Test
     public void getToken_generatesSixDigits() {

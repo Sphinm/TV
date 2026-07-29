@@ -3,6 +3,10 @@
 -keep class com.fongmi.quickjs.method.** { *; }
 -keep class com.fongmi.android.tv.bean.** { *; }
 
+# Vosk
+-keep class org.vosk.** { *; }
+-dontwarn java.awt.Component
+
 # Gson
 -keep class com.google.gson.** { *; }
 
@@ -38,40 +42,11 @@
 -keep class com.github.catvod.crawler.** { *; }
 -keep class * extends com.github.catvod.crawler.Spider
 
-# Jianpian
--keep class com.p2p.** { *; }
-
-# JUPnP
--dontwarn org.jupnp.**
--keep class org.jupnp.** { *; }
--keep class javax.xml.** { *; }
-
 # Nano
 -keep class fi.iki.elonen.** { *; }
 
-# NewPipeExtractor
--keep class javax.script.** { *; }
--keep class jdk.dynalink.** { *; }
--keep class org.mozilla.javascript.* { *; }
--keep class org.mozilla.javascript.** { *; }
--keep class org.mozilla.javascript.engine.** { *; }
--keep class org.mozilla.classfile.ClassFileWriter
--keep class org.schabi.newpipe.extractor.timeago.patterns.** { *; }
--keep class org.schabi.newpipe.extractor.services.youtube.protos.** { *; }
--dontwarn org.mozilla.javascript.JavaToJSONConverters
--dontwarn org.mozilla.javascript.tools.**
--dontwarn com.google.re2j.**
--dontwarn javax.script.**
--dontwarn jdk.dynalink.**
-
 # Sardine
 -keep class com.thegrizzlylabs.sardineandroid.** { *; }
-
-# TVBus
--keep class com.tvbus.engine.** { *; }
-
-# XunLei
--keep class com.xunlei.downloadlib.** { *; }
 
 # Zxing QRCode ABI
 -keep class com.google.zxing.* { *; }

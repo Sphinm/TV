@@ -1,21 +1,21 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
 
     <!-- Home -->
-    <string name="home_tab_home">Home</string>
-    <string name="home_vod">Browse</string>
-    <string name="home_live">Live</string>
-    <string name="home_search">Search</string>
-    <string name="home_keep">Keep</string>
-    <string name="home_push">Push</string>
-    <string name="home_setting">Setting</string>
-    <string name="home_history">History</string>
-    <string name="home_recommend">Recommend</string>
+    <string name="home_tab_home">首页</string>
+    <string name="home_vod">点播</string>
+    <string name="home_live">直播</string>
+    <string name="home_search">搜索</string>
+    <string name="home_keep">收藏</string>
+    <string name="home_push">推送</string>
+    <string name="home_setting">设置</string>
+    <string name="home_history">最近观看</string>
+    <string name="home_recommend">更新推荐</string>
 
     <!-- Collect -->
-    <string name="collect_result">Search results for <xliff:g name="name">%s</xliff:g></string>
+    <string name="collect_result">“<xliff:g name="name">%s</xliff:g>”的搜索结果</string>
 
     <!-- Push -->
-    <string name="push_clip">Push clipboard content</string>
-    <string name="push_info">Scan QR Code or enter the URL in browser (pairing code included)\n<xliff:g name="name">%s</xliff:g></string>
+    <string name="push_clip">推送剪贴板内容</string>
+    <string name="push_info">使用手机扫描二维码，或于浏览器访问地址（含配对码）\n<xliff:g name="name">%s</xliff:g></string>
 
 </resources>

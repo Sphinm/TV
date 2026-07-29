@@ -27,7 +27,7 @@
 |---------|----------------------------------------|
 | package | `com.fongmi.android.tv`                |
 | minSdk  | 24（Android 7.0 Nougat）                 |
-| abi     | `arm64-v8a`、`armeabi-v7a`（依電視架構二選一） |
+| abi     | `armeabi-v7a`（32 位 ARM，適用多數小米電視等） |
 | flavor  | `leanback`（Android TV）                 |
 
 ```
@@ -39,10 +39,8 @@ TV/
 
 **本 fork 精簡項：**
 
-- 僅保留 TV 版（`leanback`），提供兩種 ABI 變體：
-  - `arm64_v8a`：較新電視、盒子（64 位 ARM）
-  - `armeabi_v7a`：較舊電視（32 位 ARM，例如部分小米電視）
-- 內建精簡 Vod 配置（`assets/config/vod.json` + `spider.jar`），首次安裝即可使用
+- 僅保留 TV 版（`leanback`），僅打包 **32 位** `armeabi-v7a`（適用多數小米電視等舊款設備）
+- 內建精簡 Vod 配置（`assets/config/vod.json`），`spider.jar` 與 Vosk 語音模型從 CDN 按需下載
 - 支援掃碼 / URL 換源
 - 配置與首頁推薦磁碟快取，命中後先展示、後台刷新
 - 已移除：手機版、直播、DLNA、Android Auto、Python、Thunder/Jianpian 協議、MPV 播放器
@@ -119,37 +117,34 @@ Vod 配置為應用主要入口：
 scripts/build_media_aars.sh
 ```
 
-依電視架構選擇對應變體：
-
 ```bash
-# 64 位電視 / 盒子
-./gradlew assembleLeanbackArm64_v8aRelease
-
-# 32 位電視（如部分小米電視）
-./gradlew assembleLeanbackArmeabi_v7aRelease
+./gradlew assembleLeanbackRelease
+adb install -r app/build/outputs/apk/leanback/release/infuse.apk
 ```
 
-產物位於 `Release/apk/`：
+產物：`app/build/outputs/apk/leanback/release/infuse.apk`（CI 產物見 `Release/apk/`）。
 
 | APK | 適用設備 |
 |-----|---------|
-| `leanback-arm64_v8a.apk` | `arm64-v8a` |
-| `leanback-armeabi_v7a.apk` | `armeabi-v7a` |
+| `infuse.apk` | `armeabi-v7a`（32 位 ARM） |
 
-本地調試（自帶 debug 簽名，無需配置 keystore）：
+Release 簽名需在 `local.properties` 配置：
 
-```bash
-./gradlew assembleLeanbackArmeabi_v7aDebug   # 或 Arm64_v8aDebug
-adb install -r app/build/outputs/apk/leanbackArmeabi_v7a/debug/app-leanback-armeabi_v7a-debug.apk
+```properties
+storeFile=keystore/tv-release.jks
+keyAlias=tv-release
+storePassword=你的密码
 ```
 
-不確定電視架構時，可在已連接 adb 的設備上執行：
+**语音搜索（Vosk 离线识别）：**
+
+首次使用语音搜索时会从 CDN 下载中文语音模型（约 42MB），下载完成后完全离线免费可用。CDN 地址见 `Constant.REMOTE_VOSK_MODEL`。
+
+本地开发如需离线打包模型，可执行：
 
 ```bash
-adb shell getprop ro.product.cpu.abi
+bash scripts/download_vosk_model.sh
 ```
-
-Release 簽名需在 `local.properties` 配置 `storeFile`、`keyAlias`、`storePassword`；未配置時 release 包無法直接安裝。
 
 ---
 

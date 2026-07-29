@@ -24,7 +24,9 @@ import com.fongmi.android.tv.ui.adapter.WordAdapter;
 import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.custom.CustomKeyboard;
 import com.fongmi.android.tv.ui.custom.CustomTextListener;
+import com.fongmi.android.tv.ui.custom.MicCallback;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
+import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.Util;
 import com.fongmi.android.tv.utils.ZhuToPin;
@@ -91,11 +93,16 @@ public class SearchActivity extends BaseActivity implements WordAdapter.OnClickL
             }
         });
         mBinding.mic.setOnClickListener(v -> mBinding.mic.start());
-        mBinding.mic.setListener(this, new CustomTextListener() {
+        mBinding.mic.setListener(this, new MicCallback() {
             @Override
             public void onResults(String result) {
                 if (!result.isEmpty()) setKeyword(result);
                 mBinding.keyword.requestFocus();
+            }
+
+            @Override
+            public void onError(String message) {
+                Notify.show(message);
             }
         });
     }

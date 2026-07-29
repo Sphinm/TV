@@ -41,35 +41,31 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew :app:testLeanbackArm64_v8aDebugUnitTest --stacktrace
+        run: ./gradlew :app:testLeanbackDebugUnitTest --stacktrace
 
-      - name: Assemble release APKs
+      - name: Assemble release APK
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-        run: ./gradlew assembleLeanbackArm64_v8aRelease assembleLeanbackArmeabi_v7aRelease --stacktrace
+        run: ./gradlew assembleLeanbackRelease --stacktrace
 
-      - name: Collect APKs
+      - name: Collect APK
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: |
           mkdir -p Release/apk
           TAG="${GITHUB_REF_NAME}"
-          OUTPUTS=()
-          for ABI in arm64_v8a armeabi_v7a; do
-            APK=$(find app/build/outputs/apk -name "leanback-${ABI}.apk" | head -1)
-            if [ -z "$APK" ]; then
-              echo "APK not found for ${ABI}. Contents:"
-              find app/build/outputs/apk -name '*.apk' -ls || true
-              exit 1
-            fi
-            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-              OUTPUT="Release/apk/TV-${TAG}-${ABI}.apk"
-            else
-              OUTPUT="Release/apk/leanback-${ABI}.apk"
-            fi
-            cp "$APK" "$OUTPUT"
-            OUTPUTS+=("$OUTPUT")
-            ls -lh "$OUTPUT"
-          done
-          printf '%s\n' "${OUTPUTS[@]}" > Release/apk/outputs.txt
+          APK=$(find app/build/outputs/apk -name "infuse.apk" -o -name "leanback-*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "APK not found. Contents:"
+            find app/build/outputs/apk -name '*.apk' -ls || true
+            exit 1
+          fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            OUTPUT="Release/apk/TV-${TAG}-armeabi_v7a.apk"
+          else
+            OUTPUT="Release/apk/infuse.apk"
+          fi
+          cp "$APK" "$OUTPUT"
+          ls -lh "$OUTPUT"
+          echo "$OUTPUT" > Release/apk/outputs.txt
 
       - name: Upload APK artifacts
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'

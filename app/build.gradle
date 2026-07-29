@@ -96,7 +96,7 @@ androidComponents {
         def abi = flavors['abi'] ?: 'abi'
         def type = variant.buildType
         variant.outputs.each { output ->
-            output.outputFileName.set(type == 'release' ? "apple_tv-${abi}.apk" : "apple_tv-${abi}-${type}.apk")
+            output.outputFileName.set(type == 'release' ? "infuse-${abi}.apk" : "infuse-${abi}-${type}.apk")
         }
     }
 }

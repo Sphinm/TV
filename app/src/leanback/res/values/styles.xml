@@ -11,7 +11,7 @@
 
     <style name="Theme.Splash" parent="Theme.SplashScreen">
         <item name="postSplashScreenTheme">@style/Theme.App</item>
-        <item name="windowSplashScreenBackground">#141218</item>
+        <item name="windowSplashScreenBackground">@color/black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
     </style>
 
@@ -62,6 +62,12 @@
     <style name="TextSettingValue">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">@dimen/text_label</item>
+    </style>
+
+    <style name="TextNav">
+        <item name="android:textColor">@color/text_nav_color</item>
+        <item name="android:textSize">@dimen/text_nav</item>
+        <item name="android:gravity">start|center_vertical</item>
     </style>
 
 </resources>

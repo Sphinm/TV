@@ -119,7 +119,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         setAdapter();
         initConfig();
         setTitle();
-        setupTabs();
+        setupSidebar();
         App.post(() -> Updater.create().start(this), 3000);
     }
 
@@ -134,7 +134,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         });
     }
 
-    private void setupTabs() {
+    private void setupSidebar() {
         mBinding.tabHome.setOnClickListener(view -> {
             mBinding.recycler.scrollToPosition(0);
             mBinding.recycler.requestFocus();
@@ -169,7 +169,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         selector.addPresenter(ListRow.class, new CustomRowPresenter(20, FocusHighlight.ZOOM_FACTOR_LARGE, HorizontalGridView.FOCUS_SCROLL_ALIGNED), VodPresenter.class);
         selector.addPresenter(ListRow.class, new CustomRowPresenter(20, FocusHighlight.ZOOM_FACTOR_LARGE, HorizontalGridView.FOCUS_SCROLL_ALIGNED), HistoryPresenter.class);
         mBinding.recycler.setAdapter(new ItemBridgeAdapter(mAdapter = new ArrayObjectAdapter(selector)));
-        mBinding.recycler.setVerticalSpacing(ResUtil.dp2px(24));
+        mBinding.recycler.setVerticalSpacing(ResUtil.dp2px(28));
     }
 
     private void setViewModel() {

@@ -42,7 +42,7 @@ TV/
 - 僅保留 TV 版（`leanback`），提供兩種 ABI 變體：
   - `arm64_v8a`：較新電視、盒子（64 位 ARM）
   - `armeabi_v7a`：較舊電視（32 位 ARM，例如部分小米電視）
-- 內建精簡 Vod 配置（`assets/config/vod.json` + `spider.jar`），首次安裝即可使用
+- 內建精簡 Vod 配置（`assets/config/vod.json`），`spider.jar` 從 CDN 按需下載
 - 支援掃碼 / URL 換源
 - 配置與首頁推薦磁碟快取，命中後先展示、後台刷新
 - 已移除：手機版、直播、DLNA、Android Auto、Python、Thunder/Jianpian 協議、MPV 播放器

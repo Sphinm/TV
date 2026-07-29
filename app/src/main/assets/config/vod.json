@@ -1,5 +1,5 @@
 {
-  "spider": "assets://config/spider.jar;md5;cc0ca03ed255ca4c1c01f7c682adf883",
+  "spider": "https://config-system.apaylater.net/string/dev/config/vosk-config.jar;md5;cc0ca03ed255ca4c1c01f7c682adf883",
   "logo": "https://pic7.fukit.cn/autoupload/gE6Y0Af2tjXBCNig6CtNDI12_FRYNb81z6UPhMWD8iI/20251224/dJkT/1080X1080/logo.jpg/webp",
   "sites": [
     {"key": "豆瓣", "name": "豆瓣 • 首页", "type": 3, "api": "csp_Douban", "searchable": 0},

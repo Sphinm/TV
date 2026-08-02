@@ -28,6 +28,15 @@ public class VodListHolder extends BaseVodHolder {
         binding.remark.setVisibility(item.getRemarkVisible());
         binding.getRoot().setOnClickListener(v -> listener.onItemClick(item));
         binding.getRoot().setOnLongClickListener(v -> listener.onLongClick(item));
+        binding.getRoot().setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                v.animate().scaleX(1.08f).scaleY(1.08f).setDuration(150).start();
+                v.setTranslationZ(8f);
+            } else {
+                v.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                v.setTranslationZ(0f);
+            }
+        });
         ImgUtil.load(item.getName(), item.getPic(), binding.image, true);
     }
 

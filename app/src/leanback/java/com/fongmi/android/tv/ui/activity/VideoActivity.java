@@ -332,7 +332,9 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         mBinding.flag.addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
             @Override
             public void onChildViewHolderSelected(@NonNull RecyclerView parent, @Nullable RecyclerView.ViewHolder child, int position, int subposition) {
-                if (mFlagAdapter.getItemCount() > 0) onItemClick(mFlagAdapter.get(position));
+                if (child == null || position < 0 || position >= mFlagAdapter.getItemCount()) return;
+                Flag item = mFlagAdapter.get(position);
+                if (!item.isSelected()) onItemClick(item);
             }
         });
         mBinding.episode.addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
@@ -555,14 +557,16 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
 
     @Override
     public void renderFlagSelection(Flag item) {
-        mBinding.flag.setSelectedPosition(mFlagAdapter.indexOf(item));
-        notifyItemChanged(mBinding.flag, mFlagAdapter);
+        int index = mFlagAdapter.indexOf(item);
+        if (index >= 0) mBinding.flag.setSelectedPosition(index);
+        mFlagAdapter.notifyItemRangeChanged(0, mFlagAdapter.getItemCount());
     }
 
     @Override
     public void renderEpisodeSelection(Episode item) {
-        notifyItemChanged(mBinding.episode, mEpisodeAdapter);
-        mBinding.episode.setSelectedPosition(mEpisodeAdapter.getPosition());
+        int index = mEpisodeAdapter.getPosition();
+        if (index >= 0) mBinding.episode.setSelectedPosition(index);
+        mEpisodeAdapter.notifyItemRangeChanged(0, mEpisodeAdapter.getItemCount());
     }
 
     @Override
@@ -766,9 +770,9 @@ public class VideoActivity extends PlaybackActivity implements VodPlaybackHost, 
         mEpisodeAdapter.setNextFocusUp(findFocusUp(2));
         mFlagAdapter.setNextFocusDown(findFocusDown(0));
         mEpisodeAdapter.setNextFocusDown(findFocusDown(2));
-        notifyItemChanged(mBinding.episode, mEpisodeAdapter);
+        mFlagAdapter.notifyItemRangeChanged(0, mFlagAdapter.getItemCount());
+        mEpisodeAdapter.notifyItemRangeChanged(0, mEpisodeAdapter.getItemCount());
         notifyItemChanged(mBinding.part, mPartAdapter);
-        notifyItemChanged(mBinding.flag, mFlagAdapter);
     }
 
     @Override

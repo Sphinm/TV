@@ -176,7 +176,7 @@
             android:nextFocusDown="@id/flag"
             android:singleLine="true"
             android:text="@string/detail_desc"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text"
             android:textSize="16sp"
             app:drawableStartCompat="@drawable/ic_detail_desc" />
 
@@ -194,7 +194,7 @@
             android:nextFocusDown="@id/flag"
             android:singleLine="true"
             android:text="@string/keep"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text"
             android:textSize="16sp"
             app:drawableStartCompat="@drawable/ic_detail_keep_off" />
 
@@ -212,7 +212,7 @@
             android:nextFocusDown="@id/flag"
             android:singleLine="true"
             android:text="@string/play_change"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text"
             android:textSize="16sp"
             app:drawableStartCompat="@drawable/ic_detail_change" />
 

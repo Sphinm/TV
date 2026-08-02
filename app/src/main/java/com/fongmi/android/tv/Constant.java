@@ -4,10 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Constant {
 
-    public static final String REMOTE_SPIDER_JAR = "https://config-system.apaylater.net/string/dev/config/vosk-config.jar";
-    public static final String REMOTE_SPIDER_MD5 = "cc0ca03ed255ca4c1c01f7c682adf883";
-    public static final String REMOTE_VOSK_MODEL = "https://config-system.apaylater.net/string/dev/config/vosk-model-small-cn-0.22.zip";
-
     public static final long INTERVAL_SEEK = TimeUnit.SECONDS.toMillis(10);
     public static final long INTERVAL_HIDE = TimeUnit.SECONDS.toMillis(5);
     public static final long TIMEOUT_VOD = TimeUnit.SECONDS.toMillis(30);

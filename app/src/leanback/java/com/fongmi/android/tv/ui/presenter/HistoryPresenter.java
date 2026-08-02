@@ -59,7 +59,14 @@ public class HistoryPresenter extends Presenter {
             else listener.onItemClick(item);
         });
         root.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) listener.onItemFocus(item);
+            if (hasFocus) {
+                v.animate().scaleX(1.08f).scaleY(1.08f).setDuration(150).start();
+                v.setTranslationZ(8f);
+                listener.onItemFocus(item);
+            } else {
+                v.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                v.setTranslationZ(0f);
+            }
         });
     }
 

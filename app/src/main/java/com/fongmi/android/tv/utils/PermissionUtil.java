@@ -18,11 +18,6 @@ import java.util.function.Consumer;
 
 public class PermissionUtil {
 
-    public static void requestAudio(FragmentActivity activity, Consumer<Boolean> callback) {
-        if (isGranted(activity, Manifest.permission.RECORD_AUDIO)) callback.accept(true);
-        else post(activity, () -> PermissionX.init(activity).permissions(Manifest.permission.RECORD_AUDIO).request(new PermissionCallback(callback)));
-    }
-
     public static void requestFile(FragmentActivity activity, Consumer<Boolean> callback) {
         boolean requestAllFiles = canRequestAllFiles(activity);
         if (hasFilePermission(activity, requestAllFiles)) callback.accept(true);

@@ -2,6 +2,8 @@
 
     <style name="Theme.App" parent="Theme.Base">
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
     </style>
 
 </resources>

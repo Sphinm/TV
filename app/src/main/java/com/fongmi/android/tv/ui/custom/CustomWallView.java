@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -21,7 +20,6 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 import androidx.palette.graphics.Palette;
 
-import com.bumptech.glide.Glide;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.databinding.ViewWallBinding;
 import com.fongmi.android.tv.event.ConfigEvent;
@@ -41,7 +39,7 @@ import pl.droidsonroids.gif.GifDrawable;
 public class CustomWallView extends FrameLayout implements DefaultLifecycleObserver {
 
     private static final int[] WALL_PAPERS = {0, R.drawable.wallpaper_1, R.drawable.wallpaper_2, R.drawable.wallpaper_3, R.drawable.wallpaper_4};
-    private static final int[] WALL_COLORS = {0, 0xFF40C090, 0xFF4870E0, 0xFF48B0C0, 0xFF404040};
+    private static final int[] WALL_COLORS = {0, 0xFF5B7FD4, 0xFF4870E0, 0xFF48B0C0, 0xFF404040};
     private static final int TYPE_RES = 0;
     private static final int TYPE_GIF = 1;
     private static final int TYPE_VIDEO = 2;
@@ -49,7 +47,6 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
     private GifDrawable drawable;
     private PlayerView video;
     private ExoPlayer player;
-    private boolean backdropActive;
 
     public CustomWallView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -70,27 +67,15 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
     }
 
     private void refresh() {
-        if (backdropActive) return;
         stop();
         load();
         theme();
     }
 
     public void showBackdrop(String url) {
-        if (binding == null || TextUtils.isEmpty(url)) return;
-        backdropActive = true;
-        binding.scrim.setVisibility(VISIBLE);
-        binding.backdrop.setVisibility(VISIBLE);
-        Glide.with(this).load(url).centerCrop().into(binding.backdrop);
     }
 
     public void clearBackdrop() {
-        if (binding == null || !backdropActive) return;
-        backdropActive = false;
-        binding.scrim.setVisibility(GONE);
-        binding.backdrop.setVisibility(GONE);
-        Glide.with(this).clear(binding.backdrop);
-        refresh();
     }
 
     private void stop() {
@@ -128,12 +113,14 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
 
     private void loadRes(int resId) {
         binding.image.setImageResource(resId);
+        binding.image.setAlpha(0.92f);
     }
 
     private void loadImage() {
         Drawable cache = cache();
         if (cache != null) binding.image.setImageDrawable(cache);
         else binding.image.setImageResource(R.drawable.wallpaper_1);
+        binding.image.setAlpha(0.92f);
     }
 
     private void loadVideo(File file) {
@@ -142,14 +129,17 @@ public class CustomWallView extends FrameLayout implements DefaultLifecycleObser
         video.setPlayer(player);
         video.setVisibility(VISIBLE);
         binding.image.setImageDrawable(cache());
+        binding.image.setAlpha(0.92f);
         player.setMediaItem(MediaItem.fromUri(Uri.fromFile(file)));
         player.prepare();
     }
 
     private void loadGif(File file) {
         drawable = gif(file);
-        if (drawable != null) binding.image.setImageDrawable(drawable);
-        else loadImage();
+        if (drawable != null) {
+            binding.image.setImageDrawable(drawable);
+            binding.image.setAlpha(0.92f);
+        } else loadImage();
     }
 
     private Drawable cache() {

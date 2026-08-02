@@ -34,6 +34,8 @@ import com.fongmi.android.tv.ui.base.BaseFragment;
 import com.fongmi.android.tv.ui.custom.CustomRowPresenter;
 import com.fongmi.android.tv.ui.custom.CustomScroller;
 import com.fongmi.android.tv.ui.custom.CustomSelector;
+import com.fongmi.android.tv.ui.helper.PanConfigHelper;
+import com.fongmi.android.tv.ui.helper.PanStorageHelper;
 import com.fongmi.android.tv.ui.presenter.FilterPresenter;
 import com.fongmi.android.tv.ui.presenter.VodPresenter;
 import com.fongmi.android.tv.utils.Notify;
@@ -93,7 +95,7 @@ public class TypeFragment extends BaseFragment implements CustomScroller.Callbac
     }
 
     private Site getSite() {
-        return VodConfig.get().getSite(getKey());
+        return PanConfigHelper.resolveSite(getKey());
     }
 
     private FolderFragment getParent() {
@@ -250,6 +252,10 @@ public class TypeFragment extends BaseFragment implements CustomScroller.Callbac
 
     @Override
     public void onItemClick(Vod item) {
+        if (PanConfigHelper.isConfigSite(getKey()) || PanConfigHelper.isConfigSite(getSite())) {
+            if (!item.isFolder()) PanStorageHelper.runWithStorage(requireActivity(), () -> PanConfigHelper.openItem(getKey(), item));
+            return;
+        }
         if (item.isAction()) {
             mViewModel.action(getKey(), item.getAction());
         } else if (item.isFolder()) {

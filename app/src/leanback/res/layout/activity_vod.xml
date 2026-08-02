@@ -5,17 +5,41 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.leanback.widget.HorizontalGridView
-        android:id="@+id/recycler"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="24dp"
         android:paddingTop="24dp"
-        android:paddingEnd="24dp"
-        app:focusOutEnd="false"
-        app:focusOutFront="false" />
+        android:paddingEnd="24dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/panConfig"
+            style="@style/TextSettingLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/selector_item_round"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:nextFocusRight="@id/recycler"
+            android:text="@string/vod_pan_config"
+            android:textColor="@color/text" />
+
+        <androidx.leanback.widget.HorizontalGridView
+            android:id="@+id/recycler"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:focusOutEnd="false"
+            app:focusOutFront="false" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <com.fongmi.android.tv.ui.custom.CustomViewPager
         android:id="@+id/pager"

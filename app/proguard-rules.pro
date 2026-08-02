@@ -3,10 +3,6 @@
 -keep class com.fongmi.quickjs.method.** { *; }
 -keep class com.fongmi.android.tv.bean.** { *; }
 
-# Vosk
--keep class org.vosk.** { *; }
--dontwarn java.awt.Component
-
 # Gson
 -keep class com.google.gson.** { *; }
 

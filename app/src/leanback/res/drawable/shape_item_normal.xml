@@ -4,7 +4,7 @@
 
     <solid android:color="@color/black_20" />
 
-    <corners android:radius="@dimen/corner_item" />
+    <corners android:radius="@dimen/corner_card" />
 
     <padding
         android:bottom="8dp"

@@ -10,6 +10,12 @@
     <string name="home_setting">設定</string>
     <string name="home_history">最近觀看</string>
     <string name="home_recommend">更新推薦</string>
+    <string name="vod_pan_config">網盤配置</string>
+    <string name="vod_pan_config_loading">正在載入網盤配置…</string>
+    <string name="vod_pan_config_missing">配置中未找到配置中心站點</string>
+    <string name="vod_pan_config_error">網盤配置載入失敗</string>
+    <string name="vod_pan_config_open_error">網盤配置打開失敗</string>
+    <string name="vod_pan_storage_denied">需要開啟「所有檔案存取」權限才能保存夸克登入資訊，請在系統設定中授權後重新登入</string>
 
     <!-- Collect -->
     <string name="collect_result">「<xliff:g name="name">%s</xliff:g>」的搜尋結果</string>

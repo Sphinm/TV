@@ -42,7 +42,6 @@ import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.event.ServerEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.model.SiteViewModel;
-import com.fongmi.android.tv.speech.VoskRecognizer;
 import com.fongmi.android.tv.player.extractor.Source;
 import com.fongmi.android.tv.server.Server;
 import com.fongmi.android.tv.service.PlaybackService;
@@ -51,7 +50,6 @@ import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.custom.CustomRowPresenter;
 import com.fongmi.android.tv.ui.custom.CustomSelector;
 import com.fongmi.android.tv.ui.custom.CustomTitleView;
-import com.fongmi.android.tv.ui.custom.CustomWallView;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.ui.presenter.HeaderPresenter;
 import com.fongmi.android.tv.ui.presenter.HistoryPresenter;
@@ -121,7 +119,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         initConfig();
         setTitle();
         setupTabs();
-        App.post(() -> VoskRecognizer.prepare(getApplicationContext(), () -> {}, message -> {}), 500);
         App.post(() -> Updater.create().start(this), 3000);
     }
 
@@ -383,14 +380,10 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         mBinding.hero.setVisibility(View.VISIBLE);
         mBinding.heroTitle.setText(title);
         mBinding.heroSubtitle.setText(TextUtils.isEmpty(subtitle) ? " " : subtitle);
-        CustomWallView wall = getWallView();
-        if (wall != null) wall.showBackdrop(pic);
     }
 
     private void clearHero() {
         mBinding.hero.setVisibility(View.GONE);
-        CustomWallView wall = getWallView();
-        if (wall != null) wall.clearBackdrop();
     }
 
     @Override

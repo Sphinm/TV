@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -55,7 +56,8 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:nextFocusDown="@id/recycler"
-                    android:text="@string/home_tab_home" />
+                    android:text="@string/home_tab_home"
+                    android:textColor="@color/tab_text" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tabVod"
@@ -66,7 +68,8 @@
                     android:background="@drawable/selector_tab"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:text="@string/home_vod" />
+                    android:text="@string/home_vod"
+                    android:textColor="@color/tab_text" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tabSearch"
@@ -77,7 +80,8 @@
                     android:background="@drawable/selector_tab"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:text="@string/home_search" />
+                    android:text="@string/home_search"
+                    android:textColor="@color/tab_text" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tabKeep"
@@ -88,7 +92,8 @@
                     android:background="@drawable/selector_tab"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:text="@string/home_keep" />
+                    android:text="@string/home_keep"
+                    android:textColor="@color/tab_text" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tabSetting"
@@ -98,7 +103,8 @@
                     android:background="@drawable/selector_tab"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:text="@string/home_setting" />
+                    android:text="@string/home_setting"
+                    android:textColor="@color/tab_text" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
         </HorizontalScrollView>
@@ -132,6 +138,10 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:shadowColor="#99000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="10"
             android:textColor="@color/white"
             android:textSize="34sp"
             android:textStyle="bold"
@@ -144,6 +154,10 @@
             android:layout_marginTop="6dp"
             android:ellipsize="end"
             android:maxLines="2"
+            android:shadowColor="#99000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
             tools:text="更新至第 12 集 · 2024" />
